@@ -3,8 +3,8 @@ class Locket < Formula
 
   desc "Keeps an AI agent's memory from holding the same fact twice"
   homepage "https://github.com/JACK-COM/locket"
-  url "https://github.com/JACK-COM/locket/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "5bef12efb022cdcfae4d3a2dcfa169238a8576606ea33b74cfac5ab7a66408ee"
+  url "https://github.com/JACK-COM/locket/archive/refs/tags/v0.1.2.tar.gz"
+  sha256 "14206df2ef75a437e86ca32d4998d1313c1d02d37768363860386cb074ce6fbc"
   license "MIT"
 
   depends_on "python@3.14"
@@ -31,6 +31,7 @@ class Locket < Formula
     # memscan's own selftest needs no embedder; memfind's reaches for ollama,
     # which the test sandbox cannot, so `locket selftest` is left to `doctor`
     assert_match "selftest ok", shell_output("#{libexec}/memscan.py selftest 2>&1")
+    assert_match version.to_s, shell_output("#{bin}/locket --version")
     assert_match "# Install Locket", shell_output("#{bin}/locket help install")
     fact = "The tide gauge at the north pier is read at dawn and at dusk by the harbourmaster.\n"
     (testpath/"store/one.md").write fact
