@@ -4,8 +4,11 @@ Tools an AI agent puts on, one piece at a time. Each does one job, and together 
 
 ```
 brew tap jack-com/panoply
+brew trust jack-com/panoply
 brew install locket
 ```
+
+Homebrew refuses a formula from a tap you have not trusted. `brew trust --formula jack-com/panoply/locket` trusts one piece instead of the whole tap.
 
 | Piece | Purpose | Install |
 |---|---|---|
