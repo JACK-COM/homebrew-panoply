@@ -3,7 +3,7 @@
 
 [← Augur](README.md)
 
-Augur works on its defaults once your TypeSafe key is stored. This page is for changing them: another backend, a live check that asks your own questions, measuring a question before you trust it, and calling Augur from your own Python.
+Augur's defaults use `jev`, which works once your TypeSafe key is stored. This page is for changing them: the local `laya` backend instead, a live check that asks your own questions, measuring a question before you trust it, and calling Augur from your own Python.
 
 **On this page:** [Settings](#settings) · [Backends](#backends) · [Your own live check](#your-own-live-check) · [Calibration](#calibration) · [Use it from Python](#use-it-from-python)
 
@@ -19,14 +19,14 @@ Run `augur schema` to write a schema your editor can use for hints. `augur check
 
 ## Backends
 
-A **backend** is the model that answers. Augur has two:
+A **backend** is the decision model that answers. Augur supports exactly two, and a model outside them cannot be plugged in by a setting today:
 
-- **`jev`** (the default) is TypeSafe's hosted model. It needs your key and a network connection, and it is billed per input token.
+- **`jev`** (the default) is TypeSafe's hosted model. It needs a TypeSafe key and a network connection, and it is billed per input token.
 - **`laya`** is Convai's open-weight model, which runs on your machine for free. Out of the box it answers our test questions barely better than chance, because it is a base to train further. Use it once you have fine-tuned it on your own examples.
 
 ### Choose a backend
 
-Each of these overrides the one before it:
+The following backend overrides are listed by ascending priority:
 
 1. **`augur.json`** sets the default for every call:
    ```json
@@ -50,17 +50,18 @@ uv venv --python 3.12 ~/.augur-laya
 uv pip install --python ~/.augur-laya/bin/python laya torch
 ```
 
-Then tell Augur where it is, and which checkpoint to load if you trained your own:
+Then tell Augur in `~/.augur/augur.json` where it is, which checkpoint to load if you trained your own, and, if `laya` is your only backend, to use it by default:
 
 ```json
 {
+  "backend": "laya",
   "backends": {
     "laya": {"python": "~/.augur-laya/bin/python", "checkpoint": "you/your-fine-tune", "device": "mps"}
   }
 }
 ```
 
-`device` is `cuda`, `mps` or `cpu`. Leave it out and Laya picks the first one that works. Run `augur check --backend laya` to prove it loads.
+`device` is `cuda`, `mps` or `cpu`: without it, Laya picks the first one that works. Run `augur check --backend laya` to prove it loads.
 
 ### Settings each backend takes
 
@@ -90,7 +91,7 @@ augur configure check                                # shows what the live check
 augur configure check --reset                        # back to the built-in pair
 ```
 
-The file is copied, so changing the original changes nothing until you run `configure` again. Each item is one billed call every time `check --live` runs, so a handful is enough.
+The file is copied, so changing the original changes nothing until you run `configure` again. On `jev` each item is one billed call every time `check --live` runs, so a handful is enough.
 
 ## Calibration
 
