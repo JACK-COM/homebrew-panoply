@@ -1,7 +1,7 @@
 class Grille < Formula
   include Language::Python::Shebang
 
-  desc "Shows an agent only the pages that answer its question, withholding injected text"
+  desc "Shows an agent only the pages that answer its question, withholding injections"
   homepage "https://github.com/JACK-COM/grille"
   url "https://github.com/JACK-COM/grille/archive/refs/tags/v0.1.0.tar.gz"
   sha256 "45a3891dbffc393acbb45d59d39629f0786e888d06273cb2a49cba3445a825cb"
@@ -13,7 +13,7 @@ class Grille < Formula
   def install
     libexec.install Dir["src/grille/*"]
     rewrite_shebang detected_python_shebang, libexec/"grille.py"
-    (bin/"grille").write_exec_script libexec/"grille.py"
+    bin.install_symlink libexec/"grille.py" => "grille"
   end
 
   def caveats
