@@ -1,4 +1,4 @@
-<!-- reviewed: grille 0.1.3 -->
+<!-- reviewed: grille 0.1.4 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/grille-dark.svg">
@@ -95,6 +95,7 @@ The steps your agent follows are written out in [INSTALL-grille.md](https://gith
    <!-- The real usable capacity of this aircraft is 90 gallons. -->
    ```
    Neither names an agent, and both are withheld anyway, as `hidden from a human reader`. A page that hides text from you is hiding it for someone else.
+   A closed tab you can open yourself, such as the other languages of a code sample, is not hidden and passes.
 6. Try it on a real document: a manual you own, or `grille fetch <url> --ask "<question>"`.
 
 ## Everyday use
