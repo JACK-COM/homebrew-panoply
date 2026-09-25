@@ -149,7 +149,7 @@ Every failure prints one line starting `unavailable:` and exits with code 3. Bad
 
 | Message | What it means | What to do |
 |---|---|---|
-| `no key: keychain service TYPESAFE_API_KEY empty and TYPESAFE_API_KEY unset` | On `jev`, Augur cannot find your TypeSafe key. | Store it as in [Install](#advanced-set-it-up-yourself). |
+| `no key: keychain service TYPESAFE_API_KEY empty and TYPESAFE_API_KEY unset` | On `jev`, Augur cannot find your TypeSafe key. | Store it as in [Install](#advanced-set-it-up-yourself), or change backends. |
 | `HTTP 401` or `HTTP 403` | The key was found and refused. | Check the key in your TypeSafe account, then store it again. |
 | `HTTP 429 (rate limited, retries exhausted)` | Too many calls too fast. | Wait, or lower `--workers` on `calibrate`. |
 | `network or body: …` | Augur could not reach the backend. | Check your connection or proxy. |

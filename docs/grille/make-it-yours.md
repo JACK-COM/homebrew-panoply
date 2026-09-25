@@ -1,23 +1,40 @@
-<!-- reviewed: grille 0.1.2 -->
+<!-- reviewed: grille 0.1.3 -->
 # Customize your Grille installation
 
 [← Grille](README.md)
 
-Grille's screen runs with nothing set up. Three parts improve it, and each can be swapped for one of your own: the **embedder** that ranks pages, the **scorer** behind `--score`, and the **relay** behind `--decipher`. When a part is missing, Grille names it on its output and carries on.
+Grille's screen runs with nothing set up. Three parts improve Grille, and each can be swapped for one of your own:
+
+- The **embedder** that ranks pages.
+- The **scorer** behind `--score`.
+- The **relay** behind `--decipher`.
+
+When a part is missing, Grille names it on its output and carries on.
 
 **On this page:** [Settings](#settings) · [Ranking](#ranking) · [The scorer](#the-scorer) · [The relay](#the-relay) · [Network and proxies](#network-and-proxies)
 
 ## Settings
 
-Grille keeps its settings in `~/.grille/grille.json`, or in the folder `GRILLE_HOME` names. `grille configure` writes it for you, so you rarely edit it by hand. When you do, `grille schema` writes a schema your editor can use for hints, and `grille check` names any key that is misspelled.
+Grille keeps its settings in `~/.grille/grille.json`, or in the folder `GRILLE_HOME` names. `grille configure` writes it for you, so you rarely edit it by hand. `grille check` prints the settings in effect, one part per line.
+
+| Key | What it sets | Written by |
+|---|---|---|
+| `score.command` | The scorer behind `--score` | `grille configure score --command` |
+| `score.withhold` | The scorer's threshold | `grille calibrate --write`, or `grille configure score --withhold` |
+| `relay` | The chat model behind `--decipher`: `url`, `model`, `api`, `api_key_env`, `think` and `fallback`, or `false` for off | `grille configure relay` |
+| `embed.venv` | A `fastembed` virtualenv for Grille alone | By hand |
+
+> [!TIP] 
+> Before editing settings by hand, run `grille schema` to create a schema your editor can use for hints. 
+> Run `grille check` to validate your settings file or name any misspelled keys.
 
 ## Ranking
 
-Grille ranks pages by meaning with the same embedder Locket uses: ollama serving `nomic-embed-text`, or `fastembed` in the virtualenv the Panoply pieces share. If Locket already has one, Grille uses it. Without either, Grille ranks by shared words and says so.
+Grille ranks pages by meaning with the same embedder [Locket](../locket/README.md) uses: ollama serving `nomic-embed-text`, or `fastembed` in the virtualenv the Panoply pieces share. If Locket already has one, Grille uses it. Without either, Grille ranks by shared words and says so.
 
-Setting one up, and pointing it somewhere else with environment variables, works exactly as in Locket's guide: see [The embedder](../locket/make-it-yours.md#the-embedder).
+You can override Grille's embedder by following Locket's guide: see [The embedder](../locket/make-it-yours.md#the-embedder).
 
-One setting is Grille's alone. To give Grille a `fastembed` virtualenv of its own, name it in `grille.json`:
+To give Grille a `fastembed` virtualenv of its own, apart from the one the Panoply pieces share, name it in `grille.json`:
 
 ```json
 {"embed": {"venv": "~/grille-venv"}}
