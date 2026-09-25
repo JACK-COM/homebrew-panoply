@@ -8,28 +8,37 @@
 
 # Locket
 
-*Remember who you are.* A locket is the small case you wear close, holding the few things that say who you are. Locket keeps an AI agent's memory that way: small, and holding each thing once.
+*Remember who you are.* A locket is a small keepsake that preserves a memory. `Locket` keeps an AI agent's memory that way: small, and holding each thing once.
 
-An agent that keeps notes in markdown files forgets what it already wrote. Tomorrow's session learns a fact again and writes it into a new file, in new words. After a month the same fact lives in three places, one of them updates, and the agent reads the two stale copies as true. Locket catches the second copy while it is being written, and names the file that already holds the fact so the agent edits that file instead.
+Is the following sequence familiar?
 
-It does two smaller jobs beside that one. It can put a question to your agent at the moment a known mistake is about to repeat, and it keeps a count of the tokens Claude Code and Hermes spend.
+1. After learning something new/important, your agent "remembers it" in a markdown file.
+2. Some time later, the agent needs the info from (1). However, it doesn't remember doing (1), so it "re-learns" the solution again... *in a different markdown file*.
+3. *Repeat Step (2)*
+
+`Locket` catches the second copy while it is being written, and names the file that already holds the fact so the agent edits that file instead.
+
+`Locket` can also put a question to your agent at the moment a known mistake is about to repeat. It also includes a convenience helper for counting your Claude Code and/or Hermes token spend.
 
 **On this page:** [When to use it](#when-to-use-it) · [Install](#install) · [The first five minutes](#the-first-five-minutes) · [Everyday use](#everyday-use) · [Troubleshooting](#troubleshooting) · [Uninstall](#uninstall)
-**Next page:** [Make it yours](make-it-yours.md): stores, the embedder, trigger rows, and where usage reads from.
+**Next page:** [Customize your installation](make-it-yours.md): stores, the embedder, trigger rows, and where usage reads from.
 
 ## When to use it
 
-Use Locket if your agent keeps its memory, rules or notes as markdown files on disk. That covers Claude Code's `~/.claude` and its per-project memory, Hermes's `~/.hermes`, and any folder of markdown you point an agent at.
+1. **Your agent keeps its memory, rules or notes as markdown files on disk.** 
+   * This includes: Claude Code's `~/.claude` and its per-project memory; Hermes's `~/.hermes`; any markdown folder you point an agent at.
 
-Use it too if one mistake keeps coming back. A trigger row lets you write the lesson once and have it put to the agent every time the risky command comes up.
+2. **Your agent keeps repeating the same mistake.** 
+   * A trigger row lets you write the lesson once and have it put to the agent every time the risky command comes up.
 
-Use `locket usage` if you want to see what your agents spend, day by day and project by project, for longer than the hosts keep their own records.
+3. **You're on a mad quest for optimization**
+   * `locket usage` shows what your agents spend, day by day and project by project. All derived and stored locally.
 
 <details>
-<summary>When not to use it</summary>
+<summary><b>When not to use it</b></summary>
 
-- Your agent's memory is not markdown files on disk, such as a vector database or a hosted memory service. Locket cannot see it.
-- You want to know whether a stored fact is still **true**. Locket checks structure: where a fact lives and how many times. It cannot tell a true fact from a stale one, and it cannot find two files that contradict each other.
+- **Your agent's memory is not markdown files on disk**, such as a vector database or a hosted memory service.
+- You want to know whether a stored fact is still **true**. Locket checks structure: *where* a fact lives and how many times. It cannot tell a true fact from a stale one, and it cannot find two files that contradict each other.
 - You want prices or plan limits. `locket usage` counts tokens only.
 
 </details>
@@ -55,18 +64,26 @@ The steps your agent follows are written out in [INSTALL-locket.md](https://gith
 1. **Get the command.** Homebrew as above, or `uv tool install git+https://github.com/JACK-COM/locket`, or copy the scripts and run `python3 locket.py install`.
 2. **Tell Locket where your memory is.** Claude Code's and Hermes's folders are found on their own. For any other folder, run `locket init <folder>`. See [Stores](make-it-yours.md#stores).
 3. **Give it an embedder**, so it can match a fact written in new words. See [The embedder](make-it-yours.md#the-embedder).
-4. **Register the hooks.** On Claude Code, `locket install --hooks`. On Hermes, paste the lines [INSTALL-locket.md](https://github.com/JACK-COM/locket/blob/main/src/locket/INSTALL-locket.md#step-4-register-the-hooks) gives into `~/.hermes/config.yaml`. On Claude Desktop or another MCP client, `locket install --desktop`.
+4. **Register the hooks.** 
+   * On Claude Code, `locket install --hooks`. 
+   * On Claude Desktop, `locket install --desktop`. Another MCP client takes `locket mcp` as a server entry you add by hand.
+   * On Hermes, paste the lines [INSTALL-locket.md](https://github.com/JACK-COM/locket/blob/main/src/locket/INSTALL-locket.md#step-4-register-the-hooks) gives into `~/.hermes/config.yaml`. 
 5. **Check it.** `locket doctor`.
 
 ## The first five minutes
 
-1. Run `locket doctor`. Every row should read `ok`. A `warn` names something Locket works without; a `fail` names the command that fixes it.
-2. Ask it something. Pick a fact you know your agent has written down, and run:
-   ```
+1. Run `locket doctor`. Every row should read `ok`. 
+   * A `warn` names something Locket works without.
+   * A `fail` names the command that fixes it.
+2. Ask it about a fact you know your agent has written down.\
+   The following example checks whether a deployment fact is saved:
+   ```sh
    locket find "the project deploys from the main branch"
    ```
    The top of the list is the file most likely to hold that fact already, with a score. Try a different wording of the same fact; with an embedder, the same file should still come first.
-3. Run `locket audit`. It lists sentence pairs that say the same thing in two different files. Read a few. Some will be real copies to merge, and some will be an index line pointing at the file it describes, which is fine.
+3. Run `locket audit`. It lists **sentence pairs that say the same thing in two different files**.
+   * Read a few. Some will be real copies to merge, and some will be an index line pointing at the file it describes, which is fine.
+   * You can work through the results with your agent, or ignore them for now.
 4. Run `locket usage`. You should see this week's tokens for Claude Code and Hermes, whichever you use.
 
 ## Everyday use
@@ -80,23 +97,28 @@ Mostly, you do nothing. The hooks run while your agent works:
 
 A few commands are worth running yourself, or asking your agent to run at the end of a working session:
 
-```
-locket find "a fact you are about to write"    which file already holds it
-locket audit                                   facts two files both state
-locket graduated                               notes a permanent file already holds, ready to clear
-locket links                                   links that point at nothing
-locket usage                                   tokens this week, against a typical day
-locket usage month --by project                30 days, per project
+```sh
+locket find "a fact you are about to write"    # which file already holds the fact to be written
+locket audit                                   # find any facts stated in two files
+locket graduated                               # notes a permanent file already holds, ready to clear
+locket links                                   # links that point at nothing
+locket usage                                   # tokens this week, against a typical day
+locket usage month --by project                # 30 days, per project
 ```
 
-`locket -h` lists every command, and `locket <command> -h` explains one.
+`locket -h` lists every command, and `locket <command> -h` gives you help for a single command.
 
 ### How you know it is working
 
-- **`locket doctor` proves the hooks fire.** It does not stop at checking they are registered: it hands the write hook a known copy and checks that the hook catches it. `ok claude hooks  registered, and the write hook fires on a known fork` is that proof.
-- **You see it in the session.** When your agent goes to write a fact its memory already holds, a note from Locket appears in the conversation naming the file that holds it, and the agent edits that file instead. On Hermes the note reaches the agent on its next turn.
-- **`locket usage` has today in it.** The usage row in `doctor` says when the ledger last recorded.
-- **Silence is normal.** Most writes are new facts, and a new fact passes without a note. If you have gone a week without seeing one, run `locket doctor`.
+- **`locket doctor` proves the Claude Code hooks fire.** 
+  - After checking they are registered, it hands the write hook a known copy and checks that the hook catches it. `ok claude hooks  registered, and the write hook fires on a known fork` is that proof.
+- **You see it in the session.** 
+  - When your agent goes to write a fact its memory already holds, a note from Locket appears in the conversation naming the file that holds it, and the agent edits that file instead.
+  - On Hermes the note reaches the agent on its next turn.
+- **`locket usage` has today in it.** 
+  - The usage row in `doctor` says when the ledger last recorded.
+- **Silence is normal.** 
+  - Most writes are new facts, and a new fact passes without a note. If you have gone a week without seeing one, run `locket doctor`.
 
 ## Troubleshooting
 
