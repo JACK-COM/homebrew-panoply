@@ -45,6 +45,9 @@ The following backend overrides are listed by ascending priority:
 
 `laya` needs its own virtualenv with `laya` and `torch` installed:
 
+> [!NOTE]
+> `torch` and the model it loads can run to gigabytes of disk. Laya gets a virtualenv of its own so that neither its size nor its dependencies reach the one the other Panoply pieces share: installing, upgrading or removing Laya never breaks Locket or Grille, and removing them never breaks Laya.
+
 ```sh
 uv venv --python 3.12 ~/.augur-laya
 uv pip install --python ~/.augur-laya/bin/python laya torch
