@@ -1,4 +1,4 @@
-<!-- reviewed: augur 0.3.0 -->
+<!-- reviewed: augur 0.4.0 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/augur-dark.svg">
@@ -58,10 +58,11 @@ Then say to your agent: **"Run `augur help install` and follow it."**
 
 The agent checks the install, sets up the backend you choose, proves it answers, and reports back in five lines or fewer.
 
-Augur needs a **backend**: the decision model that answers its questions. It supports two:
+Augur needs a **backend**: the decision model that answers its questions. Two are built in, and any other plugs in as a command:
 
 - **`jev`**, [TypeSafe](https://typesafe.ai)'s hosted model, is the default. It needs a TypeSafe API key and a network connection, and it is billed per input token.
 - **`laya`**, Convai's open-weight model, runs on your own machine with no key and no bill. It is a base to train on your own examples, and answers poorly until you do. See [Set up `laya`](make-it-yours.md#set-up-laya).
+- **Your own model**, local or hosted, through a small script Augur runs. No TypeSafe key. See [Bring your own model](make-it-yours.md#bring-your-own-model).
 
 ### Advanced: set it up yourself
 
@@ -75,13 +76,14 @@ The steps your agent follows are written out in [INSTALL-augur.md](https://githu
      ```
      Elsewhere, `export TYPESAFE_API_KEY=<your key>` in your shell profile. Never put the key in a repository or a settings file.
    * **`laya`:** no key. Make its virtualenv and make it the default, as in [Set up `laya`](make-it-yours.md#set-up-laya).
+   * **Your own model:** no key. Write its script and name it, as in [Bring your own model](make-it-yours.md#bring-your-own-model).
 3. **Change any other setting only if you need to.** See [Customize your installation](make-it-yours.md).
 4. **Check it.** `augur check --live`.
 
 ## The first five minutes
 
 1. Run `augur check`. It should print `ok:` and the models the backend lists.
-2. Run `augur check --live`. It asks two questions with known answers, "is a banana a fruit" and "is a banana a fish", and checks that the answers come back right. On `jev` this is one billed call; on `laya` it costs nothing.
+2. Run `augur check --live`. It asks two questions with known answers, "is a banana a fruit" and "is a banana a fish", and checks that the answers come back right. On `jev` this is one billed call; on `laya` it costs nothing; on your own model it costs what your model costs.
 3. Ask a question of your own. Save this as `likes.json`:
    ```json
    {"likes_fruit": {"type": "noul",
@@ -151,7 +153,11 @@ Every failure prints one line starting `unavailable:` and exits with code 3. Bad
 | `HTTP 401` or `HTTP 403` | The key was found and refused. | Check the key in your TypeSafe account, then store it again. |
 | `HTTP 429 (rate limited, retries exhausted)` | Too many calls too fast. | Wait, or lower `--workers` on `calibrate`. |
 | `network or body: …` | Augur could not reach the backend. | Check your connection or proxy. |
-| `unknown backend …` | The backend named in `augur.json`, `AUGUR_BACKEND` or `--backend` does not exist. | Use `jev` or `laya`, or fix the spelling. |
+| `unknown backend …` | The backend named in `augur.json`, `AUGUR_BACKEND` or `--backend` does not exist. | Use `jev`, `laya` or a name under `backends`, or fix the spelling. |
+| `backend '…' names no command` | A backend of your own is missing its `command`. | Add it. See [Bring your own model](make-it-yours.md#bring-your-own-model). |
+| `command … exited N: …` | Your script failed; the end of the line is the last thing it wrote to stderr. | Pipe it a request by hand and read the whole error. |
+| `command … printed something that is not JSON` | Your script printed text around its answer, or instead of it. | Print only the reply object to stdout, and send logging to stderr. |
+| `command … gave no answer in 60s` | Your script took longer than its `timeout`. | Raise `timeout` for that backend, or speed up the model. |
 | `laya: …` or `laya worker …` | The local backend's virtualenv is missing, broken, or out of memory. | See [Backends](make-it-yours.md#backends). |
 | `augur.json: …` printed before the result | A setting is misspelled or has the wrong type. Augur still runs, so the setting you meant is not in effect. | Fix the key it names. `augur schema` gives your editor hints. |
 

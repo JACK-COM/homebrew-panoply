@@ -1,9 +1,9 @@
-<!-- reviewed: augur 0.3.0 -->
+<!-- reviewed: augur 0.4.0 -->
 # Customize your Augur installation
 
 [← Augur](README.md)
 
-Augur's defaults use `jev`, which works once your TypeSafe key is stored. This page is for changing them: the local `laya` backend instead, a live check that asks your own questions, measuring a question before you trust it, and calling Augur from your own Python.
+Augur's defaults use `jev`, which works once your TypeSafe key is stored. This page is for changing them: the local `laya` backend or a model of your own instead, a live check that asks your own questions, measuring a question before you trust it, and calling Augur from your own Python.
 
 **On this page:** [Settings](#settings) · [Backends](#backends) · [Your own live check](#your-own-live-check) · [Calibration](#calibration) · [Use it from Python](#use-it-from-python)
 
@@ -19,10 +19,11 @@ Run `augur schema` to write a schema your editor can use for hints. `augur check
 
 ## Backends
 
-A **backend** is the decision model that answers. Augur supports exactly two, and a model outside them cannot be plugged in by a setting today:
+A **backend** is the decision model that answers. Two are built in, and any other can plug in:
 
 - **`jev`** (the default) is TypeSafe's hosted model. It needs a TypeSafe key and a network connection, and it is billed per input token.
 - **`laya`** is Convai's open-weight model, which runs on your machine for free. Out of the box it answers our test questions barely better than chance, because it is a base to train further. Use it once you have fine-tuned it on your own examples.
+- **Your own model**, local or hosted, answers through a short script you write. See [Bring your own model](#bring-your-own-model).
 
 ### Choose a backend
 
@@ -66,6 +67,64 @@ Then tell Augur in `~/.augur/augur.json` where it is, which checkpoint to load i
 
 `device` is `cuda`, `mps` or `cpu`: without it, Laya picks the first one that works. Run `augur check --backend laya` to prove it loads.
 
+### Bring your own model
+
+Any decision model can answer for Augur through a **command backend**: a script that takes Augur's question on stdin and prints the answer. The script is where your model lives, so it can call a local model, a server on your network or another hosted API.
+
+1. **The script reads one JSON request on stdin.** It is the same object `augur ask --request -` takes:
+   ```json
+   {"questions": {"likes_fruit": {"type": "noul",
+                                  "instructions": "Does `text` say the writer likes a fruit?",
+                                  "criteria": {"true": "A named fruit is liked.", "false": "No fruit, or no liking."}}},
+    "state": {"text": "I could eat mangoes every day."}}
+   ```
+   `model` is added when you set one. `state` may also carry a `subject`, `siblings` and a `uid`.
+2. **It prints Augur's reply**, one answer per question, in the [shapes Augur returns](README.md#everyday-use):
+   ```json
+   {"answers": {"likes_fruit": {"type": "noul", "noul": 0.96}},
+    "model": "my-model-1", "usage": {"input_tokens": 120}}
+   ```
+   `model` and `usage` are optional. With `usage`, the ledger counts your tokens.
+3. **It exits 0.** On any other exit, Augur reports the last line the script wrote to stderr and returns no answer.
+
+A script can be as small as this:
+
+```python
+#!/usr/bin/env python3
+import json, sys
+
+request = json.load(sys.stdin)
+text = request["state"]["text"]
+answers = {}
+for name, question in request["questions"].items():
+    p = my_model_probability(question, text)      # your model, from 0 to 1
+    answers[name] = {"type": "noul", "noul": p}
+print(json.dumps({"answers": answers}))
+```
+
+Name it in `~/.augur/augur.json` under a name of your choosing, and make it the default if you like:
+
+```json
+{
+  "backend": "mine",
+  "backends": {
+    "mine": {"command": ["/Users/you/bin/my-augur-model"], "price_per_mtok": 0}
+  }
+}
+```
+
+Then check it:
+
+```sh
+augur check --backend mine            # asks it one real question
+augur check --live --backend mine     # asks the known questions and checks the answers
+```
+
+You can name several, one per model, and compare them on the same examples with `augur calibrate --compare`.
+
+> [!IMPORTANT]
+> Augur checks that every answer is a real probability, and refuses one that is not. It cannot check that your model's probabilities mean anything. A chat model asked for a number returns a number, but not a calibrated one, so run `augur calibrate` on your own examples before you trust a threshold.
+
 ### Settings each backend takes
 
 | Backend | Key | What it changes |
@@ -77,6 +136,10 @@ Then tell Augur in `~/.augur/augur.json` where it is, which checkpoint to load i
 | `laya` | `checkpoint` | The model to load, such as your own fine-tune. |
 | `laya` | `device` | `cuda`, `mps` or `cpu`. |
 | `laya` | `head_max_len` | The longest text, in tokens, the model reads. |
+| your own | `command` | The script to run, as a list of arguments or one string. Required. |
+| your own | `model` | Sent to the script as `model` in every request. |
+| your own | `timeout` | Seconds to wait for an answer. Defaults to 60. |
+| your own | `price_per_mtok` | The price per million input tokens the usage ledger records. |
 
 `--model` on a single call overrides `model` or `checkpoint` for that call.
 
