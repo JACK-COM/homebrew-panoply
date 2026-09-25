@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.4.1 -->
+<!-- reviewed: locket 0.5.0 -->
 # Customize your Locket installation
 
 [← Locket](README.md)
@@ -155,7 +155,7 @@ Rows live in a `triggers.json` at the root of a store. This row asks a question 
 - **`owner`** is the file that holds the full lesson. The row points there; it does not repeat it.
 - **`block: true`** refuses the call outright instead of asking. Say in the question how the agent gets past it.
 
-Rows in Claude Code's `~/.claude` fire everywhere. Rows in any other store fire only when the agent is working inside that store's folder.
+Rows in Claude Code's `~/.claude` or Hermes's `~/.hermes` fire everywhere on that host. Rows in any other store fire only when the agent is working inside that store's folder.
 
 Keep the list short. A file runs 12 rows at most by default, because a question the agent sees on every call is a question it learns to skim. Write a row for a mistake that has already happened, not for one you can imagine.
 
@@ -165,7 +165,9 @@ locket trigger schema     # every key a row can take, with what it does
 locket help trigger       # how triggers work
 ```
 
-Trigger rows fire on Claude Code. On Hermes they do not fire yet.
+Rows name Claude Code's tools, and Hermes's tools count as their Claude Code twins: `Bash` also watches `terminal`, `Write` and `Edit` watch `write_file` and `patch`, and `Read` watches `read_file`. A Hermes tool with no twin is named as itself.
+
+On Hermes a hook cannot add a question to a call, so a row without `block` refuses the call once instead. The agent reads the question and can repeat the same call to go ahead.
 
 ## Configure where usage reads from
 

@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.4.1 -->
+<!-- reviewed: locket 0.5.0 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/locket-dark.svg">
@@ -114,7 +114,7 @@ locket usage month --by project                # 30 days, per project
   - After checking they are registered, it hands the write hook a known copy and checks that the hook catches it. `ok claude hooks  registered, and the write hook fires on a known fork` is that proof.
 - **You see it in the session.** 
   - When your agent goes to write a fact its memory already holds, a note from Locket appears in the conversation naming the file that holds it, and the agent edits that file instead.
-  - On Hermes the note reaches the agent on its next turn.
+  - On Hermes a hook cannot add a note to a call, so Locket refuses the call once with the note. The agent can repeat the same call to go ahead.
 - **`locket usage` has today in it.** 
   - The usage row in `doctor` says when the ledger last recorded.
 - **Silence is normal.** 
