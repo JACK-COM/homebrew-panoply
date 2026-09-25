@@ -12,10 +12,9 @@
 ```
 brew tap jack-com/panoply
 brew trust jack-com/panoply
-brew install locket
 ```
 
-Homebrew refuses a formula from a tap you have not trusted. `brew trust --formula jack-com/panoply/locket` trusts one piece instead of the whole tap.
+Then install the pieces you want with the commands in the table below. Homebrew refuses a formula from a tap you have not trusted; `brew trust --formula jack-com/panoply/<piece>` trusts one piece instead of the whole tap.
 
 | | Piece | Purpose | Install |
 |---|---|---|---|
