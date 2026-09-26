@@ -7,7 +7,7 @@
 
 # The Panoply
 
-A *panoply* is a full suit of armor made up of individual pieces, and each guards one place well. The `Panoply` collection does that for an AI agent: Claude Code, Hermes, or any agent that can run a command. 
+A *panoply* is a full suit of armor made up of individual pieces, and each guards one place well. The `Panoply` collection does that for an AI agent: Claude Code, Codex, Hermes, or any agent that can run a command. 
 
 An agent working for you runs into the same few troubles again and again. It writes a fact into its memory that its memory already holds. It makes a judgment call and cannot tell you how often that kind of call is right. It reads a long document whole, including the passages someone planted to steer it. Each piece of the Panoply takes one of those troubles off your hands.
 
@@ -46,7 +46,7 @@ Every piece stands on its own. However, when installed together, they share what
 - **The shared virtualenv.** `fastembed` lives in one virtualenv every piece uses: `~/.panoply/venv`, or an older `~/.locket/venv` when that exists, or wherever `PANOPLY_VENV` points. `uninstall` removes it only with the last piece.
 - **Grille's scorer.** Grille runs `augur ask --request - --caller grille` by default. Any command that speaks the same JSON can take Augur's place; the [Grille guide](grille/README.md) shows how.
 - **Where each piece keeps its files.** Locket in `~/.locket`, Augur in `~/.augur` (or `$AUGUR_HOME`), Grille in `~/.grille` (or `$GRILLE_HOME`).
-- **Hosts.** Locket plugs into Claude Code and Hermes through their hooks, and into any MCP client through `locket mcp`. Augur and Grille are commands any agent with a shell can run.
+- **Hosts.** Locket plugs into Claude Code, Codex and Hermes through their hooks, and into any MCP client through `locket mcp`. Augur and Grille are commands any agent with a shell can run.
 - **Platforms.** Tested on macOS and Linux (Debian). On Windows, run them under WSL.
 
 </details>

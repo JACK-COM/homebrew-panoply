@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.5.0 -->
+<!-- reviewed: locket 0.6.0 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/locket-dark.svg">
@@ -26,7 +26,7 @@ Is the following sequence familiar?
 ## When to use it
 
 1. **Your agent keeps its memory, rules or notes as markdown files on disk.** 
-   * This includes: Claude Code's `~/.claude` and its per-project memory; Hermes's `~/.hermes`; any markdown folder you point an agent at.
+   * This includes: Claude Code's `~/.claude` and its per-project memory; Codex's `~/.codex`; Hermes's `~/.hermes`; any markdown folder you point an agent at.
 
 2. **Your agent keeps repeating the same mistake.** 
    * A trigger row lets you write the lesson once and have it put to the agent every time the risky command comes up.
@@ -55,17 +55,18 @@ brew install locket
 
 Then say to your agent: **"Run `locket help install` and follow it."**
 
-The agent finds your memory folders, sets up reading by meaning, asks you before it registers any hooks, and reports back in under ten lines. Claude Code and Hermes each ask you once to approve the new hooks. Say yes, or read what they do first; the agent will tell you.
+The agent finds your memory folders, sets up reading by meaning, asks you before it registers any hooks, and reports back in under ten lines. Claude Code and Hermes each ask you once to approve the new hooks, and Codex asks you to trust them in `/hooks`. Say yes, or read what they do first; the agent will tell you.
 
 ### Advanced: set it up yourself
 
 The steps your agent follows are written out in [INSTALL-locket.md](https://github.com/JACK-COM/locket/blob/main/src/locket/INSTALL-locket.md), and you can follow them by hand. In short:
 
 1. **Get the command.** Homebrew as above, or `uv tool install git+https://github.com/JACK-COM/locket`, or copy the scripts and run `python3 locket.py install`.
-2. **Tell Locket where your memory is.** Claude Code's and Hermes's folders are found on their own. For any other folder, run `locket init <folder>`. See [Stores](make-it-yours.md#stores).
+2. **Tell Locket where your memory is.** Claude Code's, Codex's and Hermes's folders are found on their own. For any other folder, run `locket init <folder>`. See [Stores](make-it-yours.md#stores).
 3. **Give it an embedder**, so it can match a fact written in new words. See [The embedder](make-it-yours.md#the-embedder).
 4. **Register the hooks.** 
    * On Claude Code, `locket install --hooks`. 
+   * On Codex, `locket install --codex`, then run `/hooks` in Codex and trust each Locket entry.
    * On Claude Desktop, `locket install --desktop`. Another MCP client takes `locket mcp` as a server entry you add by hand.
    * On Hermes, paste the lines [INSTALL-locket.md](https://github.com/JACK-COM/locket/blob/main/src/locket/INSTALL-locket.md#step-4-register-the-hooks) gives into `~/.hermes/config.yaml`. 
 5. **Check it.** `locket doctor`.
@@ -135,6 +136,8 @@ Start with `locket doctor`. Each row is one part of the install, and each `fail`
 | `claude hooks` or `usage` fails, "missing script" | The hooks point at an old copy of Locket, often after moving from scripts to Homebrew. | `locket install --hooks` again. |
 | `triggers` fails | A `triggers.json` row has a mistake, or rows exist and the hook is not registered. | `locket trigger check` names the row. |
 | `usage` warns | Nothing records usage as sessions end, so a day can age out before it is saved. | `locket install --hooks`. |
+| `codex hooks` warns, "not registered" | The hooks are missing from `~/.codex/hooks.json`. | `locket install --codex`. |
+| `codex hooks` warns, "Codex skips them until trusted" | The hooks work, and Codex runs them only once you trust them. `doctor` cannot see that trust, so the warning stays. | Run `/hooks` in Codex and trust each Locket entry. |
 | `hermes hooks` warns | Some of the four Hermes hooks are missing from `config.yaml`. | Step 4 of `locket help install`. All four are needed. |
 | `desktop server` fails | Claude Desktop points at a Locket that moved. | `locket install --desktop`, then restart the app. |
 
@@ -151,7 +154,7 @@ locket uninstall               removes it, after asking once
 brew uninstall locket          if you installed with Homebrew
 ```
 
-Uninstall removes the `locket` command link, everything in `~/.locket` except the usage ledger, every cache, the Claude Code hook entries and the Claude Desktop server entry. It keeps a copy of each settings file it edits.
+Uninstall removes the `locket` command link, everything in `~/.locket` except the usage ledger, every cache, the Claude Code and Codex hook entries and the Claude Desktop server entry. It keeps a copy of each settings file it edits.
 
 It leaves behind:
 

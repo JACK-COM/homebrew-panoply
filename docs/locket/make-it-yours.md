@@ -1,9 +1,9 @@
-<!-- reviewed: locket 0.5.0 -->
+<!-- reviewed: locket 0.6.0 -->
 # Customize your Locket installation
 
 [← Locket](README.md)
 
-Locket works out of the box on Claude Code and Hermes. This page is for everything else: your own memory folders, a different embedder, lessons you want put to the agent, and usage kept somewhere unusual. Each section shows one worked example and points to the command that lists every option, so this page never has to keep up with a changing list.
+Locket works out of the box on Claude Code, Codex and Hermes. This page is for everything else: your own memory folders, a different embedder, lessons you want put to the agent, and usage kept somewhere unusual. Each section shows one worked example and points to the command that lists every option, so this page never has to keep up with a changing list.
 
 **On this page:** [Stores](#stores) · [The embedder](#the-embedder) · [Trigger rows](#trigger-rows) · [Where usage reads from](#configure-where-usage-reads-from) · [Council stores](#council-stores)
 
@@ -15,6 +15,7 @@ A **store** is a folder of markdown your agent writes memory into. Locket checks
   - `~/.claude` is one store (its memory, rules, skills, agents and the markdown at the top).
   - Each project's memory folder under `~/.claude/projects/` is a store of its own.
 - **Hermes** is found without setup too: `~/.hermes`, with `memories/` and `SOUL.md`.
+- **Codex** is found without setup too: `~/.codex`, or the folder `CODEX_HOME` names, with `memories/` and `AGENTS.md`. Codex writes `memories/` itself, between sessions, so no hook sees those writes; Locket checks what you and your agent write, and the audit reads what Codex wrote.
 - **For any other folder**, run the following command:
 
   ```sh
@@ -110,7 +111,7 @@ To make a change permanent, set the variable everywhere Locket runs. Your agent 
   ```json
   { "env": { "MEMFIND_MODEL": "mxbai-embed-large" } }
   ```
-- **Hermes:** set it in the environment you start Hermes from.
+- **Hermes and Codex:** set it in the environment you start the agent from.
 - **Claude Desktop:** add an `env` block to the `locket` entry under `mcpServers`.
 
 Keep the model the same in all of them. The index records which model built it, and a run with a different model builds it again from scratch, so a model set in your terminal but not in the hooks rebuilds the index back and forth. `OLLAMA_HOST` does not have this problem, because it moves the server and not the model.
@@ -155,7 +156,7 @@ Rows live in a `triggers.json` at the root of a store. This row asks a question 
 - **`owner`** is the file that holds the full lesson. The row points there; it does not repeat it.
 - **`block: true`** refuses the call outright instead of asking. Say in the question how the agent gets past it.
 
-Rows in Claude Code's `~/.claude` or Hermes's `~/.hermes` fire everywhere on that host. Rows in any other store fire only when the agent is working inside that store's folder.
+Rows in Claude Code's `~/.claude`, Codex's `~/.codex` or Hermes's `~/.hermes` fire everywhere on that host. Rows in any other store fire only when the agent is working inside that store's folder.
 
 Keep the list short. A file runs 12 rows at most by default, because a question the agent sees on every call is a question it learns to skim. Write a row for a mistake that has already happened, not for one you can imagine.
 
@@ -165,7 +166,7 @@ locket trigger schema     # every key a row can take, with what it does
 locket help trigger       # how triggers work
 ```
 
-Rows name Claude Code's tools, and Hermes's tools count as their Claude Code twins: `Bash` also watches `terminal`, `Write` and `Edit` watch `write_file` and `patch`, and `Read` watches `read_file`. A Hermes tool with no twin is named as itself.
+Rows name Claude Code's tools, and Hermes's tools count as their Claude Code twins: `Bash` also watches `terminal`, `Write` and `Edit` watch `write_file` and `patch`, and `Read` watches `read_file`. A Hermes tool with no twin is named as itself. On Codex a file edit is a patch, and Locket reads it as the `Write` or `Edit` it amounts to; a row can also name `apply_patch`.
 
 On Hermes a hook cannot add a question to a call, so a row without `block` refuses the call once instead. The agent reads the question and can repeat the same call to go ahead.
 
@@ -197,4 +198,4 @@ It counts tokens and nothing else. Prices go stale, a subscription is not billed
 
 ## Council stores
 
-Each host's home folder is its **council store**: `~/.claude` for Claude Code, named `council`, and `~/.hermes` for Hermes, named `hermes`. Its rules, skills and memory are checked as one store, so a rule that restates a memory fact is caught like a second memory file would be. Trigger rows in `~/.claude` fire in every project, which makes it the place for lessons that apply everywhere. There is one council store per host, and Locket always looks for it in the default location.
+Each host's home folder is its **council store**: `~/.claude` for Claude Code, named `council`, `~/.codex` for Codex, named `codex`, and `~/.hermes` for Hermes, named `hermes`. Its rules, skills and memory are checked as one store, so a rule that restates a memory fact is caught like a second memory file would be. Trigger rows in `~/.claude` fire in every project, which makes it the place for lessons that apply everywhere. There is one council store per host, and Locket always looks for it in the default location.
