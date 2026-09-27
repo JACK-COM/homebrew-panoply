@@ -1,4 +1,4 @@
-<!-- reviewed: augur 0.4.0 -->
+<!-- reviewed: augur 0.4.1 -->
 # Customize your Augur installation
 
 [← Augur](README.md)

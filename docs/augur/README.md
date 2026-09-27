@@ -1,4 +1,4 @@
-<!-- reviewed: augur 0.4.0 -->
+<!-- reviewed: augur 0.4.1 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/augur-dark.svg">
