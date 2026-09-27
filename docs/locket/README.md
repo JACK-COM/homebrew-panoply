@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.6.0 -->
+<!-- reviewed: locket 0.7.0 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/locket-dark.svg">

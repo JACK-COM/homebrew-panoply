@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.6.0 -->
+<!-- reviewed: locket 0.7.0 -->
 # Customize your Locket installation
 
 [← Locket](README.md)
@@ -22,7 +22,7 @@ A **store** is a folder of markdown your agent writes memory into. Locket checks
   locket init <path/to/folder>
   ```
 
-  Replace `<path/to/folder>` with a path to the target folder.
+  Replace `<path/to/folder>` with a path to the target folder. Locket names the store after the folder and writes that name into the folder's `locket.json`; add `--name <label>` to choose another. A name another store already holds is refused.
 
   > [!IMPORTANT] 
   > Only `init` adds a store to the list. Locket does not search your disk, so a `locket.json` you write by hand in a folder you never ran `init` on is never read.
@@ -55,7 +55,7 @@ Run `locket forget <folder>` to drop a store.
 
 ### The manifest: `locket.json`
 
-A store's `locket.json` holds its exceptions. Every key is optional, and a store without one uses the defaults.
+A store's `locket.json` holds its name and its exceptions. `init` writes the name alone, and every key you leave out uses the default.
 The following example skips backup files, keeps a log from being scored as if it were facts, and lets `find` rank the rows of a spreadsheet of decisions:
 
 ```json
@@ -70,10 +70,12 @@ The following example skips backup files, keeps a log from being scored as if it
 
 The keys used:
 
-- **`excluded_files`** and **`excluded_dirs`**: files and folders that are not memory.
+- **`excluded_files`** and **`excluded_dirs`**: files and folders that are not memory. Dependency and build folders (`node_modules`, `vendor`, `Pods`, `venv`, `build`, `dist` and their kin) are skipped in every store, whatever this list says.
 - **`ledger_surfaces`**: files that grow by adding entries on purpose, such as a log, so repeats there are not flagged.
 - **`holding_spaces`**: scratch or inbox files whose entries should each be unique, and which are checked only against themselves.
 - **`sources`**: CSV files whose rows `find` should rank beside your markdown.
+
+A CSV named `RULINGS*.csv`, `CLAIMS*.csv` or `HISTORY-*-Sessions.csv` is also checked row by row against a built-in schema: a row that breaks it is refused at write time, and `locket ledgers` checks every such file in a store. `locket help scan` prints each schema.
 
 Run `locket help scan` for an explanation of every key. 
 To manually edit a manifest in a code editor, `locket schema` writes a schema your editor can use for hints, and `locket schema <folder>` checks a store's manifest.
