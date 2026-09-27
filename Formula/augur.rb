@@ -3,8 +3,8 @@ class Augur < Formula
 
   desc "Asks a decision model typed questions and returns calibrated probabilities"
   homepage "https://github.com/JACK-COM/augur"
-  url "https://github.com/JACK-COM/augur/archive/refs/tags/v0.4.0.tar.gz"
-  sha256 "b2f18ccc76c92399edd93184250de09cf838f09d7c88c08ad27bcefac45b9d9b"
+  url "https://github.com/JACK-COM/augur/archive/refs/tags/v0.4.1.tar.gz"
+  sha256 "870af2a79c3a0906fcc5f7ab32a0699bbe8160b1ee8f8515533de296995637ab"
   license "MIT"
 
   depends_on "python@3.14"
