@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.7.3 -->
+<!-- reviewed: locket 0.8.0 -->
 # Customize your Locket installation
 
 [← Locket](README.md)
@@ -78,6 +78,22 @@ The keys used:
 - **`sources`**: CSV files whose rows `find` should rank beside your markdown.
 
 A CSV named `RULINGS*.csv`, `CLAIMS*.csv` or `HISTORY-*-Sessions.csv` is also checked row by row against a built-in schema: a row that breaks it is refused at write time, and `locket ledgers` checks every such file in a store. `locket help scan` prints each schema.
+
+### Ledgers: the writes Locket can refuse
+
+Locket can tell whether a row fits its columns, but not whether a sentence is new. So the more of your memory that lives in rows, the more of it Locket can check before it lands. One command sets the ledgers up:
+
+```sh
+locket init <your memory folder> --ledgers
+```
+
+It writes three files at the folder's root, each holding only its header row, and keeps any that already exist:
+
+- **`RULINGS-<name>.csv`**: decisions you have made, one per row, so a later session finds the decision instead of making it again.
+- **`CLAIMS-<name>.csv`**: facts your agent found the hard way, each with its source, so a later session finds the fact instead of hunting for it again.
+- **`HISTORY-<name>-Sessions.csv`**: one row per working session, saying what it did. A dated note like "updated on the 3rd" belongs here, not in a memory file, and Locket's note about it names this file.
+
+The first two are added to `sources`, so `find` ranks their rows beside your markdown. `<name>` is the store's name; `--ledgers=<Name>` picks another. Point at a row by file and filter (`RULINGS-notes.csv`, query `Area=billing`) rather than copying it into prose.
 
 Run `locket help scan` for an explanation of every key. 
 To manually edit a manifest in a code editor, `locket schema` writes a schema your editor can use for hints, and `locket schema <folder>` checks a store's manifest.
