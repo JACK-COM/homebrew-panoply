@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.7.2 -->
+<!-- reviewed: locket 0.7.3 -->
 # Customize your Locket installation
 
 [← Locket](README.md)
@@ -49,6 +49,8 @@ council                                            212 files
 -Users-myname-ducks-and-flowers-game               23 files
 myapp-memory                                       104 files + 30 csv rows  [1 joined store]
 ```
+
+Any command that takes a store accepts a name from this list, or any part of one: `ducks` finds the game's store. A name that matches a store exactly always picks that store, even when a longer name contains it; a part that matches two stores is refused, and the list is printed.
 
 Run `locket forget <folder>` to drop a store.
 
