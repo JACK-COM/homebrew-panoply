@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.7.2 -->
+<!-- reviewed: locket 0.7.3 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/locket-dark.svg">
@@ -93,7 +93,7 @@ Mostly, you do nothing. The hooks run while your agent works:
 
 - **Before the agent writes a fact into memory**, Locket checks whether another file already holds it. If one does, the agent is told which file, and rewrites that file instead of adding a second copy.
 - **Before the agent searches your memory with plain text search**, Locket adds the files most likely to hold the idea by meaning, since a text search misses the same fact in other words.
-- **Before the agent writes into memory through the shell**, Locket stops it and asks it to use its file tools, which the other hooks can see.
+- **Before the agent writes into memory through the shell**, Locket stops it and asks it to use its file tools, which the other hooks can see. A memory file handed to a shell command Locket does not know to be read-only draws a note rather than a stop, since Locket cannot tell from the command whether it writes.
 - **When a Claude Code session ends**, Locket copies that session's token counts into its own ledger.
 
 A few commands are worth running yourself, or asking your agent to run at the end of a working session:
@@ -108,6 +108,8 @@ locket usage month --by project                # 30 days, per project
 ```
 
 `locket -h` lists every command, and `locket <command> -h` gives you help for a single command.
+
+**Moving a fact from one file to another.** Take it out of the old file first, then write it into the new one, and Locket sees a move. Written the other way round, the fact sits in two files for a moment and Locket names the old one as a copy. If you keep an `archive/` folder, copying the old passage there first works too, because Locket never counts archived text as a copy.
 
 ### How you know it is working
 
