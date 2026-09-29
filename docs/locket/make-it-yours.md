@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.8.1 -->
+<!-- reviewed: locket 0.8.2 -->
 # Customize your Locket installation
 
 [← Locket](README.md)
