@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.8.4 -->
+<!-- reviewed: locket 0.8.5 -->
 # Customize your Locket installation
 
 [← Locket](README.md)
@@ -72,10 +72,12 @@ The following example skips backup files, keeps a log from being scored as if it
 
 The keys used:
 
-- **`excluded_files`** and **`excluded_dirs`**: files and folders that are not memory. Dependency and build folders (`node_modules`, `vendor`, `Pods`, `venv`, `build`, `dist` and their kin) are skipped in every store, whatever this list says.
-- **`ledger_surfaces`**: files that grow by adding entries on purpose, such as a log, so repeats there are not flagged.
-- **`holding_spaces`**: scratch or inbox files whose entries should each be unique, and which are checked only against themselves.
+- **`excluded_files`** and **`excluded_dirs`**: files and folders that are not memory, so Locket never reads them. Use them for a draft, or a template whose copies hold the facts. Dependency and build folders (`node_modules`, `vendor`, `Pods`, `venv`, `build`, `dist` and their kin) are skipped in every store, whatever this list says.
+- **`ledger_surfaces`**: markdown files that grow by adding entries on purpose, such as a log, so repeats there are not flagged. These have nothing to do with the CSV ledgers below.
+- **`holding_spaces`**: scratch or inbox files whose entries should each be unique. Locket still reads and searches them, but checks each only against itself.
 - **`sources`**: CSV files whose rows `find` should rank beside your markdown.
+
+`locket help manifest` lists every key, grouped by the question it answers.
 
 A CSV named `RULINGS*.csv`, `CLAIMS*.csv` or `HISTORY-*-Sessions.csv` is also checked row by row against a built-in schema: a row that breaks it is refused at write time, and `locket ledgers` checks every such file in a store. `locket help scan` prints each schema.
 
