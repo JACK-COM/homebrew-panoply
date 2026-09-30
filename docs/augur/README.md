@@ -1,4 +1,4 @@
-<!-- reviewed: augur 0.4.1 -->
+<!-- reviewed: augur 0.5.0 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/augur-dark.svg">
@@ -58,11 +58,14 @@ Then say to your agent: **"Run `augur help install` and follow it."**
 
 The agent checks the install, sets up the backend you choose, proves it answers, and reports back in five lines or fewer.
 
-Augur needs a **backend**: the decision model that answers its questions. Two are built in, and any other plugs in as a command:
+Augur needs a **backend**: the decision model that answers its questions. You choose one of four:
 
 - **`jev`**, [TypeSafe](https://typesafe.ai)'s hosted model, is the default. It needs a TypeSafe API key and a network connection, and it is billed per input token.
-- **`laya`**, Convai's open-weight model, runs on your own machine with no key and no bill. It is a base to train on your own examples, and answers poorly until you do. See [Set up `laya`](make-it-yours.md#set-up-laya).
-- **Your own model**, local or hosted, through a small script Augur runs. No TypeSafe key. See [Bring your own model](make-it-yours.md#bring-your-own-model).
+- **A model Ollama serves**, such as [Nimble](https://ollama.com/library/nimble), runs on your own machine with no key and no bill. It speaks the same API as `jev`, so it takes three lines of settings. See [Local, with Ollama](make-it-yours.md#local-with-ollama).
+- **`laya`**, Convai's open-weight model, also runs on your own machine. It is a base to train on your own examples, and answers poorly until you do. See [Set up `laya`](make-it-yours.md#set-up-laya).
+- **Your own model**, local or hosted, through a small script Augur runs. See [Bring your own model](make-it-yours.md#bring-your-own-model).
+
+Only a hosted model needs a key.
 
 ### Advanced: set it up yourself
 
@@ -75,6 +78,7 @@ The steps your agent follows are written out in [INSTALL-augur.md](https://githu
      security add-generic-password -a "$USER" -s TYPESAFE_API_KEY -w <your key> -U
      ```
      Elsewhere, `export TYPESAFE_API_KEY=<your key>` in your shell profile. Never put the key in a repository or a settings file.
+   * **A model Ollama serves:** no key. Pull it and name it, as in [Local, with Ollama](make-it-yours.md#local-with-ollama).
    * **`laya`:** no key. Make its virtualenv and make it the default, as in [Set up `laya`](make-it-yours.md#set-up-laya).
    * **Your own model:** no key. Write its script and name it, as in [Bring your own model](make-it-yours.md#bring-your-own-model).
 3. **Change any other setting only if you need to.** See [Customize your installation](make-it-yours.md).
@@ -82,8 +86,8 @@ The steps your agent follows are written out in [INSTALL-augur.md](https://githu
 
 ## The first five minutes
 
-1. Run `augur check`. It should print `ok:` and the models the backend lists.
-2. Run `augur check --live`. It asks two questions with known answers, "is a banana a fruit" and "is a banana a fish", and checks that the answers come back right. On `jev` this is one billed call; on `laya` it costs nothing; on your own model it costs what your model costs.
+1. Run `augur check`. It asks the backend one question and should print `ok:` and the model that answered. On `jev` that question costs about a thousandth of a cent.
+2. Run `augur check --live`. It asks two questions with known answers, "is a banana a fruit" and "is a banana a fish", and checks that the answers come back right. On `jev` this is one billed call; on Ollama or `laya` it costs nothing; on your own model it costs what your model costs.
 3. Ask a question of your own. Save this as `likes.json`:
    ```json
    {"likes_fruit": {"type": "noul",
@@ -99,7 +103,7 @@ The steps your agent follows are written out in [INSTALL-augur.md](https://githu
    The answer is at `answers.likes_fruit.noul`: on `jev`, a probability close to 1.
    Change the text input to `-t "I cannot stand bananas."` and the probability drops close to 0.
    An untrained `laya` answers far less cleanly, which is what [calibration](make-it-yours.md#calibration) will show you.
-4. Look at `~/.augur/usage.csv`. Every call you made is a row, with its tokens and cost; a `laya` call costs 0.
+4. Look at `~/.augur/usage.csv`. Every call you made is a row, with its tokens and cost; a local call costs 0.
 
 ## Everyday use
 
@@ -149,12 +153,16 @@ Every failure prints one line starting `unavailable:` and exits with code 3. Bad
 
 | Message | What it means | What to do |
 |---|---|---|
-| `no key: keychain service TYPESAFE_API_KEY empty and TYPESAFE_API_KEY unset` | On `jev`, Augur cannot find your TypeSafe key. | Store it as in [Install](#advanced-set-it-up-yourself), or change backends. |
-| `HTTP 401` or `HTTP 403` | The key was found and refused. | Check the key in your TypeSafe account, then store it again. |
+| `no key: keychain service TYPESAFE_API_KEY empty and TYPESAFE_API_KEY unset` | On `jev`, Augur cannot find your TypeSafe key. Another hosted backend names its own. | Store it as in [Install](#advanced-set-it-up-yourself), or change backends. |
+| `HTTP 401` or `HTTP 403` | The key was found and refused. | Check the key with its provider, then store it again. |
 | `HTTP 429 (rate limited, retries exhausted)` | Too many calls too fast. | Wait, or lower `--workers` on `calibrate`. |
+| `network or body: … Connection refused` | Nothing is listening at the backend's `url`. For a local model, Ollama is not running. | Start Ollama, or fix the `url`. |
 | `network or body: …` | Augur could not reach the backend. | Check your connection or proxy. |
+| `HTTP 404: … not found, try pulling it first` | Ollama has no model by the entry's `model` name. | `ollama pull` it, or fix the name. |
+| `HTTP 400: … not supported by System One` | The model Ollama was asked for is not a decision model. | Name a decision model in `model`. |
 | `unknown backend …` | The backend named in `augur.json`, `AUGUR_BACKEND` or `--backend` does not exist. | Use `jev`, `laya` or a name under `backends`, or fix the spelling. |
-| `backend '…' names no command` | A backend of your own is missing its `command`. | Add it. See [Bring your own model](make-it-yours.md#bring-your-own-model). |
+| `backend '…' names no type` | A backend of your own does not say how Augur should talk to it. | Add `"type": "systemone"`, `"laya"` or `"command"`. See [Backends](make-it-yours.md#backends). |
+| `backend '…' is a … backend with no …` | An entry is missing the one key its type requires: `url` or `command`. | Add it. |
 | `command … exited N: …` | Your script failed; the end of the line is the last thing it wrote to stderr. | Pipe it a request by hand and read the whole error. |
 | `command … printed something that is not JSON` | Your script printed text around its answer, or instead of it. | Print only the reply object to stdout, and send logging to stderr. |
 | `command … gave no answer in 60s` | Your script took longer than its `timeout`. | Raise `timeout` for that backend, or speed up the model. |
@@ -176,7 +184,8 @@ brew uninstall jack-com/panoply/augur          # if you installed with Homebrew
 
 Uninstall removes the local backend's virtualenv, if you made one. It leaves behind, and names:
 
-- **Your TypeSafe key**, if you stored one in the keychain, which you remove with `security delete-generic-password -s TYPESAFE_API_KEY`.
+- **Any API key you stored in the keychain**, which uninstall names with the command that removes it, such as `security delete-generic-password -s TYPESAFE_API_KEY`.
+- **Any model you pulled with Ollama**, which `ollama rm` removes.
 - **`~/.augur`**, which holds your settings, your live check and the usage ledger.
 - **Your question and items files**, wherever you keep them.
 - **The command itself**, which Homebrew removes. Spell it in full here too, or Homebrew reaches for the unrelated `augur` app.
