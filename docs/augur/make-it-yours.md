@@ -1,4 +1,4 @@
-<!-- reviewed: augur 0.5.0 -->
+<!-- reviewed: augur 0.6.0 -->
 # Customize your Augur installation
 
 [← Augur](README.md)
@@ -11,7 +11,7 @@ Augur's defaults use `jev`, which works once your TypeSafe key is stored. This p
 
 Augur keeps its files in `~/.augur`, or in the folder `AUGUR_HOME` names:
 
-- **`augur.json`**, the settings. It holds only what differs from the defaults, so a new install has none.
+- **`augur.json`**, the settings. It holds only what differs from the defaults, so a new install has none. `augur configure backend` writes it, and you can edit it by hand.
 - **`check.json`**, your own live check, once you make one.
 - **`usage.csv`**, one row per call: when, which backend, which caller, which model, how many questions, the input tokens and the cost.
 
@@ -19,7 +19,25 @@ Run `augur schema` to write a schema your editor can use for hints. `augur check
 
 ## Backends
 
-A **backend** is a decision model Augur can ask, set up as a named entry under `backends`. Each entry has a `type`, which is how Augur talks to it:
+A **backend** is a decision model Augur can ask. Add one with:
+
+```sh
+augur configure backend
+```
+
+It asks where the model runs (Ollama on this machine, a hosted System One API, Laya, or a script of your own), then which model, and asks that model one real question before it saves anything. A model that does not answer is not saved, and the question shows in `usage.csv` under the caller `configure`. The same command manages what you have:
+
+```sh
+augur configure backend --list            # every backend, its type, and which is the default
+augur configure backend nimble --default  # make one the default
+augur configure backend --remove nimble   # remove yours; a shipped name gets its shipped settings back
+```
+
+Every prompt has a flag, so a script or an agent can do the same without a terminal. `augur configure backend -h` lists them, and the sections below give each kind of backend's command.
+
+### What it writes
+
+Each backend is a named entry under `backends` in `augur.json`, and its `type` is how Augur talks to it:
 
 - **`systemone`** is the System One API, which TypeSafe built for Jev and Ollama now serves for local models. Any model behind it works with a URL and a model name. See [A model behind the System One API](#a-model-behind-the-system-one-api).
 - **`laya`** is Convai's open-weight model, run on your machine by a worker Augur starts. See [Set up `laya`](#set-up-laya).
@@ -35,13 +53,13 @@ Augur ships two entries of its own, `jev` and `laya`, in a `defaults.json` of th
    "laya": {"type": "laya", "checkpoint": "convaiinnovations/laya"}}}
 ```
 
-Your `augur.json` merges over them by one rule. An entry with a shipped name changes only the keys you set, and an entry with a new name is a new backend. An entry that names a different `type` from the shipped one replaces it whole.
+Your `augur.json` merges over them by one rule. An entry with a shipped name changes only the keys you set, and an entry with a new name is a new backend. An entry that names a different `type` from the shipped one replaces it whole. `augur configure backend` follows the same rule: `augur configure backend nimble --timeout 120` changes one key and keeps the rest.
 
 ### Choose a backend
 
 The following backend overrides are listed by ascending priority:
 
-1. **`augur.json`** sets the default for every call:
+1. **`augur.json`** sets the default for every call. `augur configure backend nimble --default` writes it:
    ```json
    {"backend": "nimble"}
    ```
@@ -60,37 +78,49 @@ A `systemone` entry needs a `url` and a `model`. What differs between one host a
 
 #### Hosted, with a key
 
-`jev` is ready once your TypeSafe key is stored, as in [Install](README.md#advanced-set-it-up-yourself). For another hosted System One model, add an entry with its URL and model, and name where its key lives:
+`jev` is ready once your TypeSafe key is stored:
+
+```sh
+augur configure backend jev --store-key
+```
+
+On macOS, `security` asks for the key itself, so it never appears as an argument, in your shell history or in Augur's output. Elsewhere, the command prints the `export` line to add to your shell profile.
+
+For another hosted System One model, run `augur configure backend` and choose a hosted API, or give the same answers as flags:
+
+```sh
+augur configure backend acme --type systemone --url https://api.acme.example/v1/systemone --model acme-2.1 \
+  --key-service ACME_API_KEY --key-env ACME_API_KEY --price 0.05 --store-key
+```
+
+That stores the key, asks one question, and writes:
 
 ```json
 {"backends": {"acme": {"type": "systemone", "url": "https://api.acme.example/v1/systemone", "model": "acme-2.1",
                        "keychain_service": "ACME_API_KEY", "env_key": "ACME_API_KEY", "price_per_mtok": 0.05}}}
 ```
 
-Augur looks for the key in the macOS keychain service first, then in the environment variable. Give each host names of its own, so one host's key is never sent to another. Store it the same way as TypeSafe's:
-
-```sh
-security add-generic-password -a "$USER" -s ACME_API_KEY -w <key> -U
-```
+Augur looks for the key in the macOS keychain service first, then in the environment variable. Give each host names of its own, so one host's key is never sent to another.
 
 #### Local, with Ollama
 
-Ollama 0.35 and later serves decision models over the same API, on your machine, with no key and no bill. Pull one, then name it:
+Ollama 0.35 and later serves decision models over the same API, on your machine, with no key and no bill. Run `augur configure backend` and choose Ollama. It lists the decision models you have pulled, pulls another by name, and saves the exact tag, such as `nimble:9b-q8_0` over `nimble:latest`, because `latest` moves when the library updates and a threshold you measured moves with it. By flags:
 
 ```sh
-ollama pull nimble
+ollama pull nimble:9b-q8_0
+augur configure backend nimble --type systemone --url http://localhost:11434/v1/systemone --model nimble:9b-q8_0 --price 0
 ```
 
+That writes:
+
 ```json
-{"backends": {"nimble": {"type": "systemone", "url": "http://localhost:11434/v1/systemone", "model": "nimble",
+{"backends": {"nimble": {"type": "systemone", "url": "http://localhost:11434/v1/systemone", "model": "nimble:9b-q8_0",
                          "price_per_mtok": 0}}}
 ```
 
-Then check it with `augur check --live --backend nimble`. An entry that names neither `keychain_service` nor `env_key` sends no key, which is what Ollama expects.
+An entry that names neither `keychain_service` nor `env_key` sends no key, which is what Ollama expects. The `model` is the only value that changes from one Ollama decision model to the next, so a second one is a second entry with another name. Ollama refuses a model that is not a decision model, with `HTTP 400` and `not supported by System One`, so `configure` does not save it.
 
-The `model` is the only value that changes from one Ollama decision model to the next, so a second one is a second entry with another name. Ollama refuses a model that is not a decision model, with `HTTP 400` and `not supported by System One`.
-
-The first call after Ollama starts, or after it has unloaded an idle model, waits for the model to load. If that call times out, raise `timeout` on the entry. `OLLAMA_KEEP_ALIVE` on the Ollama server keeps a model loaded for longer.
+The first call after Ollama starts, or after it has unloaded an idle model, waits for the model to load. If calls time out, raise the wait with `augur configure backend nimble --timeout 120`. `OLLAMA_KEEP_ALIVE` on the Ollama server keeps a model loaded for longer.
 
 ### Set up `laya`
 
@@ -104,7 +134,13 @@ uv venv --python 3.12 ~/.augur-laya
 uv pip install --python ~/.augur-laya/bin/python laya torch
 ```
 
-Then tell Augur in `~/.augur/augur.json` where it is, which checkpoint to load if you trained your own, and, if `laya` is your only backend, to use it by default:
+Then tell Augur where it is, which checkpoint to load if you trained your own, and, if `laya` is your only backend, to use it by default:
+
+```sh
+augur configure backend laya --python ~/.augur-laya/bin/python --checkpoint you/your-fine-tune --device mps --default
+```
+
+That writes:
 
 ```json
 {
@@ -115,7 +151,7 @@ Then tell Augur in `~/.augur/augur.json` where it is, which checkpoint to load i
 }
 ```
 
-`device` is `cuda`, `mps` or `cpu`: without it, Laya picks the first one that works. Run `augur check --backend laya` to prove it loads.
+`device` is `cuda`, `mps` or `cpu`: without it, Laya picks the first one that works.
 
 ### Bring your own model
 
@@ -152,23 +188,24 @@ for name, question in request["questions"].items():
 print(json.dumps({"answers": answers}))
 ```
 
-Name it in `~/.augur/augur.json` under a name of your choosing, and make it the default if you like:
+Add it under a name of your choosing, and make it the default if you like:
+
+```sh
+augur configure backend mine --type command --command /Users/you/bin/my-augur-model --price 0 --default
+```
+
+That asks the script one real question, then writes:
 
 ```json
 {
   "backend": "mine",
   "backends": {
-    "mine": {"type": "command", "command": ["/Users/you/bin/my-augur-model"], "price_per_mtok": 0}
+    "mine": {"type": "command", "command": "/Users/you/bin/my-augur-model", "price_per_mtok": 0}
   }
 }
 ```
 
-Then check it:
-
-```sh
-augur check --backend mine            # asks it one real question
-augur check --live --backend mine     # asks the known questions and checks the answers
-```
+`command` may also be a list of arguments, written by hand. `augur check --live --backend mine` asks it the known questions and checks the answers.
 
 You can name several, one per model, and compare them on the same examples with `augur calibrate --compare`.
 
@@ -177,21 +214,21 @@ You can name several, one per model, and compare them on the same examples with 
 
 ### Settings each type takes
 
-Every entry takes `type` and `price_per_mtok`, the price per million input tokens the usage ledger records.
+Every entry takes `type` (`--type`) and `price_per_mtok` (`--price`), the price per million input tokens the usage ledger records.
 
-| Type | Key | What it changes |
+| Type | Key (flag) | What it changes |
 |---|---|---|
-| `systemone` | `url` | The System One endpoint. Required. |
-| `systemone` | `model` | The model to ask. Pin a version, as `jev` does. |
-| `systemone` | `keychain_service`, `env_key` | Where to find the API key: the macOS keychain entry, then the environment variable. Leave both out for a host that takes no key. |
-| `systemone` | `timeout` | Seconds to wait for an answer. Defaults to 60. |
-| `laya` | `python` | The virtualenv's Python. Without it, `laya` is unavailable. |
-| `laya` | `checkpoint` | The model to load, such as your own fine-tune. |
-| `laya` | `device` | `cuda`, `mps` or `cpu`. |
+| `systemone` | `url` (`--url`) | The System One endpoint. Required. |
+| `systemone` | `model` (`--model`) | The model to ask. Pin a version, as `jev` does. |
+| `systemone` | `keychain_service` (`--key-service`), `env_key` (`--key-env`) | Where to find the API key: the macOS keychain entry, then the environment variable. Leave both out for a host that takes no key. |
+| `systemone` | `timeout` (`--timeout`) | Seconds to wait for an answer. Defaults to 60. |
+| `laya` | `python` (`--python`) | The virtualenv's Python. Without it, `laya` is unavailable. |
+| `laya` | `checkpoint` (`--checkpoint`) | The model to load, such as your own fine-tune. |
+| `laya` | `device` (`--device`) | `cuda`, `mps` or `cpu`. |
 | `laya` | `head_max_len` | The longest text, in tokens, the model reads. |
-| `command` | `command` | The script to run, as a list of arguments or one string. Required. |
-| `command` | `model` | Sent to the script as `model` in every request. |
-| `command` | `timeout` | Seconds to wait for an answer. Defaults to 60. |
+| `command` | `command` (`--command`) | The script to run, as a list of arguments or one string. Required. |
+| `command` | `model` (`--model`) | Sent to the script as `model` in every request. |
+| `command` | `timeout` (`--timeout`) | Seconds to wait for an answer. Defaults to 60. |
 
 `--model` on a single call overrides `model` or `checkpoint` for that call. `augur check` names any key that does not belong to an entry's type.
 

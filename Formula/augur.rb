@@ -17,10 +17,12 @@ class Augur < Formula
 
   def caveats
     <<~EOS
-      To finish, ask your agent to run:
-        augur help install
-      and follow it. The default backend needs a TypeSafe API key;
-      `augur check --live` proves it answers.
+      To finish, run:
+        augur configure backend
+      which asks where your model runs and saves it once it answers.
+      The default backend, jev, needs only your TypeSafe API key:
+        augur configure backend jev --store-key
+      Or ask your agent to run `augur help install` and follow it.
     EOS
   end
 

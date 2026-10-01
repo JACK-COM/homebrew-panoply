@@ -1,4 +1,4 @@
-<!-- reviewed: augur 0.5.0 -->
+<!-- reviewed: augur 0.6.0 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/augur-dark.svg">
@@ -54,14 +54,14 @@ brew install jack-com/panoply/augur
 > [!IMPORTANT]
 > Spell the formula in full. Homebrew has an unrelated app called `augur`, and `brew install augur` installs that instead.
 
-Then say to your agent: **"Run `augur help install` and follow it."**
+Then run **`augur configure backend`**. It asks where your model runs and which model to use, then asks that model one real question and saves it only if it answers.
 
-The agent checks the install, sets up the backend you choose, proves it answers, and reports back in five lines or fewer.
+Or say to your agent: **"Run `augur help install` and follow it."** The agent checks the install, sets up the backend you choose with the same command, proves it answers, and reports back in five lines or fewer. A key stays your step: the agent gives you the command, and you type the key into the prompt.
 
 Augur needs a **backend**: the decision model that answers its questions. You choose one of four:
 
 - **`jev`**, [TypeSafe](https://typesafe.ai)'s hosted model, is the default. It needs a TypeSafe API key and a network connection, and it is billed per input token.
-- **A model Ollama serves**, such as [Nimble](https://ollama.com/library/nimble), runs on your own machine with no key and no bill. It speaks the same API as `jev`, so it takes three lines of settings. See [Local, with Ollama](make-it-yours.md#local-with-ollama).
+- **A model Ollama serves**, such as [Nimble](https://ollama.com/library/nimble), runs on your own machine with no key and no bill. It speaks the same API as `jev`, so `augur configure backend` finds the decision models you have pulled and sets one up. See [Local, with Ollama](make-it-yours.md#local-with-ollama).
 - **`laya`**, Convai's open-weight model, also runs on your own machine. It is a base to train on your own examples, and answers poorly until you do. See [Set up `laya`](make-it-yours.md#set-up-laya).
 - **Your own model**, local or hosted, through a small script Augur runs. See [Bring your own model](make-it-yours.md#bring-your-own-model).
 
@@ -73,14 +73,12 @@ The steps your agent follows are written out in [INSTALL-augur.md](https://githu
 
 1. **Get the command.** Homebrew as above, or `uv tool install git+https://github.com/JACK-COM/augur`. Run `augur selftest`, which needs no network and no key.
 2. **Set up your backend.**
-   * **`jev`:** store your TypeSafe key. On macOS, in the keychain:
+   * **`jev`:** store your TypeSafe key:
      ```sh
-     security add-generic-password -a "$USER" -s TYPESAFE_API_KEY -w <your key> -U
+     augur configure backend jev --store-key
      ```
-     Elsewhere, `export TYPESAFE_API_KEY=<your key>` in your shell profile. Never put the key in a repository or a settings file.
-   * **A model Ollama serves:** no key. Pull it and name it, as in [Local, with Ollama](make-it-yours.md#local-with-ollama).
-   * **`laya`:** no key. Make its virtualenv and make it the default, as in [Set up `laya`](make-it-yours.md#set-up-laya).
-   * **Your own model:** no key. Write its script and name it, as in [Bring your own model](make-it-yours.md#bring-your-own-model).
+     On macOS, `security` prompts for the key and keeps it in the keychain, so it never reaches your shell history. Elsewhere, the command prints the `export TYPESAFE_API_KEY=` line for your shell profile. Never put the key in a repository or a settings file.
+   * **Anything else:** run `augur configure backend` and answer its questions, or use the flags in [Backends](make-it-yours.md#backends): [Ollama](make-it-yours.md#local-with-ollama), [`laya`](make-it-yours.md#set-up-laya) and [your own model](make-it-yours.md#bring-your-own-model) each have their command.
 3. **Change any other setting only if you need to.** See [Customize your installation](make-it-yours.md).
 4. **Check it.** `augur check --live`.
 
@@ -153,15 +151,15 @@ Every failure prints one line starting `unavailable:` and exits with code 3. Bad
 
 | Message | What it means | What to do |
 |---|---|---|
-| `no key: keychain service TYPESAFE_API_KEY empty and TYPESAFE_API_KEY unset` | On `jev`, Augur cannot find your TypeSafe key. Another hosted backend names its own. | Store it as in [Install](#advanced-set-it-up-yourself), or change backends. |
+| `no key: keychain service TYPESAFE_API_KEY empty and TYPESAFE_API_KEY unset` | On `jev`, Augur cannot find your TypeSafe key. Another hosted backend names its own. | Run the `augur configure backend … --store-key` command the message names, or change backends. |
 | `HTTP 401` or `HTTP 403` | The key was found and refused. | Check the key with its provider, then store it again. |
 | `HTTP 429 (rate limited, retries exhausted)` | Too many calls too fast. | Wait, or lower `--workers` on `calibrate`. |
 | `network or body: … Connection refused` | Nothing is listening at the backend's `url`. For a local model, Ollama is not running. | Start Ollama, or fix the `url`. |
 | `network or body: …` | Augur could not reach the backend. | Check your connection or proxy. |
 | `HTTP 404: … not found, try pulling it first` | Ollama has no model by the entry's `model` name. | `ollama pull` it, or fix the name. |
 | `HTTP 400: … not supported by System One` | The model Ollama was asked for is not a decision model. | Name a decision model in `model`. |
-| `unknown backend …` | The backend named in `augur.json`, `AUGUR_BACKEND` or `--backend` does not exist. | Use `jev`, `laya` or a name under `backends`, or fix the spelling. |
-| `backend '…' names no type` | A backend of your own does not say how Augur should talk to it. | Add `"type": "systemone"`, `"laya"` or `"command"`. See [Backends](make-it-yours.md#backends). |
+| `unknown backend …` | The backend named in `augur.json`, `AUGUR_BACKEND` or `--backend` does not exist. | `augur configure backend --list` shows the names. Use one of them, or fix the spelling. |
+| `backend '…' names no type` | A backend of your own does not say how Augur should talk to it. | Add `"type": "systemone"`, `"laya"` or `"command"`, or set it up again with `augur configure backend`. See [Backends](make-it-yours.md#backends). |
 | `backend '…' is a … backend with no …` | An entry is missing the one key its type requires: `url` or `command`. | Add it. |
 | `command … exited N: …` | Your script failed; the end of the line is the last thing it wrote to stderr. | Pipe it a request by hand and read the whole error. |
 | `command … printed something that is not JSON` | Your script printed text around its answer, or instead of it. | Print only the reply object to stdout, and send logging to stderr. |
