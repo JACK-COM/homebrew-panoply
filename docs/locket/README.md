@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.8.5 -->
+<!-- reviewed: locket 0.8.6 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/locket-dark.svg">
@@ -139,7 +139,8 @@ Start with `locket doctor`. Each row is one part of the install, and each `fail`
 | `triggers` fails | A `triggers.json` row has a mistake, or rows exist and the hook is not registered. | `locket trigger check` names the row. |
 | `usage` warns | Nothing records usage as sessions end, so a day can age out before it is saved. | `locket install --hooks`. |
 | `codex hooks` warns, "not registered" | The hooks are missing from `~/.codex/hooks.json`. | `locket install --codex`. |
-| `codex hooks` warns, "Codex skips them until trusted" | The hooks work, and Codex runs them only once you trust them. `doctor` cannot see that trust, so the warning stays. | Run `/hooks` in Codex and trust each Locket entry. |
+| `codex hooks` warns that Codex reports an entry untrusted or modified | The hooks work, and Codex runs them only once you trust them. `doctor` asks Codex which entries are trusted. | Run `/hooks` in Codex and trust each Locket entry. |
+| `codex hooks` warns that entries are "trusted in ollama-launch.config.toml" | You trusted them inside `ollama launch codex`, which saves trust to a file Codex never reads back, so it lapses on restart. | Copy the `[hooks.state...]` tables `doctor` names into `~/.codex/config.toml`, and copy them again after any change to `hooks.json`. |
 | `hermes hooks` warns | Some of the four Hermes hooks are missing from `config.yaml`. | Step 4 of `locket help install`. All four are needed. |
 | `desktop server` fails | Claude Desktop points at a Locket that moved. | `locket install --desktop`, then restart the app. |
 
