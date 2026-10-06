@@ -22,8 +22,8 @@ class Locket < Formula
       and follow it. It registers the hooks with your consent;
       `locket doctor` checks the install.
 
-      `locket find` ranks by meaning when ollama serves nomic-embed-text:
-        brew install ollama && ollama pull nomic-embed-text
+      `locket find` ranks by meaning when ollama serves EmbeddingGemma 2:
+        brew install ollama && ollama pull embeddinggemma-2:270m
     EOS
   end
 

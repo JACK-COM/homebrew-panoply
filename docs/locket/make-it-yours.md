@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.8.9 -->
+<!-- reviewed: locket 0.9.0 -->
 # Customize your Locket installation
 
 [← Locket](README.md)
@@ -107,13 +107,13 @@ Without one, `locket find` compares words only, and a fact written in new words 
 
 Locket uses the first of these that responds:
 
-1. **[ollama](https://ollama.com)** serving `nomic-embed-text`. If ollama is installed, `ollama pull nomic-embed-text` is all it takes; Locket starts the server when it needs it.
-2. **`fastembed`**, which runs inside Python with no server. It lives in the virtualenv every Panoply piece shares:
+1. **[ollama](https://ollama.com)** 0.36 or later, serving `embeddinggemma-2:270m`. If ollama is installed, `ollama pull embeddinggemma-2:270m` is all it takes; Locket starts the server when it needs it. An older ollama refuses the pull and asks for an upgrade.
+2. **onnxruntime**, which runs the same model inside Python with no server. It lives in the virtualenv every Panoply piece shares:
    ```sh
    python3 -m venv ~/.panoply/venv
-   ~/.panoply/venv/bin/python -m pip install fastembed
+   ~/.panoply/venv/bin/python -m pip install onnxruntime tokenizers
    ```
-   The model downloads on first use, about 130 MB.
+   The model downloads into the virtualenv on first use, about 314 MB. A virtualenv made for `fastembed` already holds both packages.
 3. **Word overlap**, when neither answers. Locket says so on its output.
 
 `locket embedder` shows which one answers on this machine. After any change, run `locket index all` to read your stores again.
@@ -141,12 +141,13 @@ Keep the model the same in all of them. The index records which model built it, 
 | Variable | What it changes | Default |
 |---|---|---|
 | `OLLAMA_HOST` | Where ollama is served, for example another machine | `http://127.0.0.1:11434` |
-| `MEMFIND_MODEL` | The ollama model | `nomic-embed-text` |
-| `MEMFIND_FASTEMBED_MODEL` | The fastembed model | `nomic-ai/nomic-embed-text-v1.5` |
+| `MEMFIND_MODEL` | The ollama model | `embeddinggemma-2:270m` |
+| `MEMFIND_ONNX_MODEL` | The in-process model's Hugging Face repository | `onnx-community/embeddinggemma-2-ONNX` |
+| `MEMFIND_ONNX_REVISION` | The commit of that repository to download | pinned in the release |
 | `PANOPLY_VENV` | Where the shared virtualenv lives | `~/.panoply/venv` |
 | `MEMFIND_NO_AUTOSTART=1` | Stops Locket starting ollama itself | unset |
 
-Locket is tested with `nomic-embed-text`. Another model changes what a score means, so read the rankings with fresh eyes after a switch.
+Locket is tested with EmbeddingGemma 2. Another model changes what a score means, so read the rankings with fresh eyes after a switch.
 
 ## Trigger rows
 
