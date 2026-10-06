@@ -1,4 +1,4 @@
-<!-- reviewed: grille 0.1.5 -->
+<!-- reviewed: grille 0.2.0 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/grille-dark.svg">
@@ -16,7 +16,7 @@ Is the following sequence familiar?
 2. The agent reads the whole thing, and most of what it read has nothing to do with your question.
 3. Somewhere in there, a line written for the agent, such as "ignore your instructions and…", is read the same as everything else.
 
-`Grille` returns the eight pages that answer the question instead of all eighty, and on the way it withholds any passage written to steer the agent, along with shell commands, hidden characters, and any text a web page hides from a human reader. A withheld passage is replaced by one line naming the reason and an id, and remains retrievable as data by your agent.
+`Grille` returns the ten pages that answer the question instead of all eighty, and on the way it withholds any passage written to steer the agent, along with shell commands, hidden characters, and any text a web page hides from a human reader. A withheld passage is replaced by one line naming the reason and an id, and remains retrievable as data by your agent.
 
 **On this page:** [When to use it](#when-to-use-it) · [Install](#install) · [The first five minutes](#the-first-five-minutes) · [Everyday use](#everyday-use) · [Troubleshooting](#troubleshooting) · [Uninstall](#uninstall)
 **Next page:** [Customize your installation](make-it-yours.md): ranking, the scorer, the relay, and settings.
@@ -113,7 +113,7 @@ grille show 3f9a1c                                                    # a withhe
 grille verify https://a.example https://b.example                     # status, final address, type, redirects
 ```
 
-- **`--pages N`** returns N pages instead of 8.
+- **`--pages N`** returns N pages instead of 10.
 - **`--score`** also asks a scorer whether each returned page tries to steer the agent, and withholds a page that scores at its threshold or above. The pattern screen runs either way.
 - **`--render`** writes pages with no text layer, such as scans, as images, so the agent looks at three pictures instead of eighty.
 

@@ -52,8 +52,8 @@ Every piece stands on its own. However, when installed together, they share what
 <summary style="font-size:smaller; cursor:pointer; line-height:2">The technical details</summary>
 
 - **Python.** Every piece runs on Python 3.9 or later using only the standard library. Homebrew installs the Python it needs.
-- **The embedder.** Ranking by meaning uses the `nomic-embed-text` model, served by [ollama](https://ollama.com) or run in-process by `fastembed`. Without either, Locket and Grille fall back to shared words and say so on their output.
-- **The shared virtualenv.** `fastembed` lives in one virtualenv every piece uses: `~/.panoply/venv`, or an older `~/.locket/venv` when that exists, or wherever `PANOPLY_VENV` points. `uninstall` removes it only with the last piece.
+- **The embedder.** Ranking by meaning uses Google's EmbeddingGemma 2 model, served by [ollama](https://ollama.com) or run in-process by onnxruntime. Without either, Locket and Grille fall back to shared words and say so on their output.
+- **The shared virtualenv.** The in-process embedder and its model live in one virtualenv every piece uses: `~/.panoply/venv`, or an older `~/.locket/venv` when that exists, or wherever `PANOPLY_VENV` points. `uninstall` removes it only with the last piece.
 - **Grille's scorer.** Grille runs `augur ask --request - --caller grille` by default. Any command that speaks the same JSON can take Augur's place; the [Grille guide](docs/grille/README.md) shows how.
 - **Where each piece keeps its files.** Locket in `~/.locket`, Augur in `~/.augur` (or `$AUGUR_HOME`), Grille in `~/.grille` (or `$GRILLE_HOME`).
 - **Hosts.** Locket plugs into Claude Code, Codex and Hermes through their hooks, and into any MCP client through `locket mcp`. Augur and Grille are commands any agent with a shell can run.

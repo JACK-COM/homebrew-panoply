@@ -1,4 +1,4 @@
-<!-- reviewed: grille 0.1.5 -->
+<!-- reviewed: grille 0.2.0 -->
 # Customize your Grille installation
 
 [← Grille](README.md)
@@ -22,7 +22,7 @@ Grille keeps its settings in `~/.grille/grille.json`, or in the folder `GRILLE_H
 | `score.command` | The scorer behind `--score` | `grille configure score --command` |
 | `score.withhold` | The scorer's threshold | `grille calibrate --write`, or `grille configure score --withhold` |
 | `relay` | The chat model behind `--decipher`: `url`, `model`, `api`, `api_key_env`, `think` and `fallback`, or `false` for off | `grille configure relay` |
-| `embed.venv` | A `fastembed` virtualenv for Grille alone | By hand |
+| `embed.venv` | An embedder virtualenv for Grille alone | By hand |
 
 > [!TIP] 
 > Before editing settings by hand, run `grille schema` to create a schema your editor can use for hints. 
@@ -30,11 +30,11 @@ Grille keeps its settings in `~/.grille/grille.json`, or in the folder `GRILLE_H
 
 ## Ranking
 
-Grille ranks pages by meaning with the same embedder [Locket](../locket/README.md) uses: ollama serving `nomic-embed-text`, or `fastembed` in the virtualenv the Panoply pieces share. If Locket already has one, Grille uses it. Without either, Grille ranks by shared words and says so.
+Grille ranks pages by meaning with the same embedder [Locket](../locket/README.md) uses: ollama serving `embeddinggemma-2:270m`, or onnxruntime running the same model in the virtualenv the Panoply pieces share. If Locket already has one, Grille uses it. Without either, Grille ranks by shared words and says so.
 
 You can override Grille's embedder by following Locket's guide: see [The embedder](../locket/make-it-yours.md#the-embedder).
 
-To give Grille a `fastembed` virtualenv of its own, apart from the one the Panoply pieces share, name it in `grille.json`:
+To give Grille an embedder virtualenv of its own, apart from the one the Panoply pieces share, name it in `grille.json`:
 
 ```json
 {"embed": {"venv": "~/grille-venv"}}
