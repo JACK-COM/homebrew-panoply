@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.9.0 -->
+<!-- reviewed: locket 0.10.0 -->
 # Customize your Locket installation
 
 [← Locket](README.md)
@@ -120,32 +120,47 @@ Locket uses the first of these that responds:
 
 ### Use a different embedder
 
-Locket reads these environment variables every time it runs, and has no settings file for them. For a single command, put the variable in front of it:
+`locket configure` holds the embedder settings in one file, `~/.locket/config.json`, which every way Locket runs reads: your terminal, your agent's hooks, the Claude Desktop server. One command changes all of them:
+
+```sh
+locket configure embedder --model nomic-embed-text
+```
+
+The model must already be pulled (`ollama pull nomic-embed-text`). Locket asks ollama before writing and refuses a model it does not have, or one that is not an embedding model.
+
+The change is instant, but every store's index still belongs to the old model. `locket find` and `locket index` rebuild a store when they next run it, and your agent's hooks stay silent for that store until then. To rebuild every store as part of the change, add `--index`:
+
+```sh
+locket configure embedder --model nomic-embed-text --index
+```
+
+`locket configure` on its own shows each setting, where its value comes from, and which stores are behind. `locket configure embedder -h` explains every option:
+
+| Option | What it changes | Default |
+|---|---|---|
+| `--model NAME` | The ollama model | `embeddinggemma-2:270m` |
+| `--ollama-host URL` | Where ollama answers, for example another machine | `http://127.0.0.1:11434` |
+| `--autostart`, `--no-autostart` | Whether Locket starts ollama when it is not running | on |
+| `--venv PATH` | The virtualenv for the in-process rung | `~/.panoply/venv` |
+| `--reset` | Every setting back to its default | |
+
+Pass `default` as a value to return one setting to its default: `locket configure embedder --model default`. The in-process rung always runs EmbeddingGemma 2, so a machine set to another model ranks with Gemma whenever ollama is down, and keeps a second index for it.
+
+An environment variable still wins over the file, for one command or one test:
 
 ```sh
 OLLAMA_HOST=http://gpu-box.local:11434 locket find "we ship from main"
 ```
 
-To make a change permanent, set the variable everywhere Locket runs. Your agent runs Locket too, through its hooks, and a hook sees the agent's environment, not your terminal's:
+| Variable | Overrides | 
+|---|---|
+| `MEMFIND_MODEL` | `--model` |
+| `OLLAMA_HOST` | `--ollama-host` |
+| `MEMFIND_NO_AUTOSTART=1` | `--autostart` |
+| `PANOPLY_VENV` | `--venv` |
+| `MEMFIND_ONNX_MODEL`, `MEMFIND_ONNX_REVISION` | The in-process model itself, which has no option |
 
-- **Your terminal:** add `export MEMFIND_MODEL=...` to your shell profile, such as `~/.zshrc`.
-- **Claude Code:** add it to the `env` block in `~/.claude/settings.json`, which every session and hook inherits:
-  ```json
-  { "env": { "MEMFIND_MODEL": "mxbai-embed-large" } }
-  ```
-- **Hermes and Codex:** set it in the environment you start the agent from.
-- **Claude Desktop:** add an `env` block to the `locket` entry under `mcpServers`.
-
-Keep the model the same in all of them. The index records which model built it, and a run with a different model builds it again from scratch, so a model set in your terminal but not in the hooks rebuilds the index back and forth. `OLLAMA_HOST` does not have this problem, because it moves the server and not the model.
-
-| Variable | What it changes | Default |
-|---|---|---|
-| `OLLAMA_HOST` | Where ollama is served, for example another machine | `http://127.0.0.1:11434` |
-| `MEMFIND_MODEL` | The ollama model | `embeddinggemma-2:270m` |
-| `MEMFIND_ONNX_MODEL` | The in-process model's Hugging Face repository | `onnx-community/embeddinggemma-2-ONNX` |
-| `MEMFIND_ONNX_REVISION` | The commit of that repository to download | pinned in the release |
-| `PANOPLY_VENV` | Where the shared virtualenv lives | `~/.panoply/venv` |
-| `MEMFIND_NO_AUTOSTART=1` | Stops Locket starting ollama itself | unset |
+A variable set in one place and not another is how your terminal and your hooks come to use different models, rebuilding the index back and forth, so `locket configure` and `locket doctor` name any variable that is overriding the file.
 
 Locket is tested with EmbeddingGemma 2. Another model changes what a score means, so read the rankings with fresh eyes after a switch.
 
