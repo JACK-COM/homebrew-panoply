@@ -3,8 +3,8 @@ class Locket < Formula
 
   desc "Keeps an AI agent's memory from holding the same fact twice"
   homepage "https://github.com/JACK-COM/locket"
-  url "https://github.com/JACK-COM/locket/archive/refs/tags/v0.11.3.tar.gz"
-  sha256 "382e1e599d83d81e128e8c53afcc850c98cfcbd5cb5a801a6bf27528bc1e7ebb"
+  url "https://github.com/JACK-COM/locket/archive/refs/tags/v0.11.4.tar.gz"
+  sha256 "dfda830702e52abb064d7383f0caf5cc4c03dbc006b990c9d73f0f22a352dcc5"
   license "MIT"
 
   depends_on "python@3.14"
