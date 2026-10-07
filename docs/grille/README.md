@@ -1,4 +1,4 @@
-<!-- reviewed: grille 0.2.0 -->
+<!-- reviewed: grille 0.3.0 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/grille-dark.svg">
@@ -134,7 +134,7 @@ An agent reads a PDF with its own tools unless something tells it otherwise. Two
 
 ### How you know it is working
 
-- **`grille check` exits 0.** It exits 1 while poppler is missing, the relay is neither set up nor turned off, or `grille.json` has a problem.
+- **`grille check` exits 0.** It exits 1 while poppler is missing, the relay is neither set up nor turned off, `grille.json` has a problem, or `~/.panoply/config.json` cannot be read.
 - **The output names what it used.** Every `sift` says how it ranked (`ranked by embedding` or by shared words) and how many spans it withheld.
 - **Withheld lines appear.** On pages from the open web you will see `[grille: withheld …]` lines from time to time. On your own documents, you mostly will not, and that is normal.
 
@@ -168,5 +168,6 @@ brew uninstall jack-com/panoply/grille          # if you installed with Homebrew
 Uninstall removes the withheld passages from every session, and the shared embedder virtualenv when no other Panoply piece still uses it. It leaves behind, and names:
 
 - **`~/.grille`**, your settings. `rm -r ~/.grille` removes them.
+- **Grille's embedder overrides**, the `grille` section of `~/.panoply/config.json`, which the other pieces read too. Remove that section by hand.
 - **Your relay's model and server**, which Grille never installed.
 - **poppler**, which other software may use.

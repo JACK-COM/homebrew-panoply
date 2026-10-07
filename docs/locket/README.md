@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.10.0 -->
+<!-- reviewed: locket 0.11.0 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/locket-dark.svg">
@@ -165,3 +165,4 @@ It leaves behind:
 - **The usage ledger**, `~/.locket/usage.csv`, because it holds days the hosts have already deleted. `--purge` removes it, with each store's `locket.json`.
 - **The Hermes hook lines** in `~/.hermes/config.yaml`, which you remove by hand.
 - **The shared embedder virtualenv**, if another Panoply piece still uses it. It goes with the last piece.
+- **The Panoply settings file**, `~/.panoply/config.json`, which the other pieces read too. Remove its `locket` section by hand, or the whole file once no piece is left.
