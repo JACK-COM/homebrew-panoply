@@ -39,7 +39,7 @@ grille configure embedder --model nomic-embed-text
 
 `--ollama-host`, `--autostart` or `--no-autostart`, and `--venv` work the same way. Add `--global` to change the setting for every piece that does not set its own, and pass `default` as a value to follow the global setting again. Grille reads its own section first, then the global settings, then the shipped default; an environment variable such as `MEMFIND_MODEL` or `PANOPLY_VENV` beats them all. [Locket's guide](../locket/make-it-yours.md#the-embedder) explains each setting.
 
-An older `grille.json` with an `embed` section keeps working: the next `grille configure` moves it into Grille's section of `~/.panoply/config.json`.
+An older `grille.json` with an `embed` section keeps working until `grille migrate`, or the next `grille configure`, moves it into Grille's section of `~/.panoply/config.json`.
 
 ## The scorer
 

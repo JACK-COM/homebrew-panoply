@@ -157,6 +157,14 @@ Two things `check` cannot see:
 - **`fetch` returns little or nothing from a page you can read in your browser.** The site builds its content with JavaScript, which Grille does not run.
 - **A proxy set in macOS System Settings is ignored.** Grille uses only `HTTP_PROXY`, `HTTPS_PROXY` and `NO_PROXY` from the environment.
 
+## Upgrade
+
+```sh
+brew update && brew upgrade jack-com/panoply/grille && grille migrate
+```
+
+`grille migrate` finishes whatever a release needs from your machine, such as moving older settings to where the new version keeps them. It does nothing when nothing is pending, so run it after every upgrade.
+
 ## Uninstall
 
 ```sh
