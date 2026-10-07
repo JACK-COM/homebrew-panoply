@@ -1,4 +1,4 @@
-<!-- reviewed: grille 0.2.0 -->
+<!-- reviewed: grille 0.3.0 -->
 # Customize your Grille installation
 
 [← Grille](README.md)
@@ -22,7 +22,6 @@ Grille keeps its settings in `~/.grille/grille.json`, or in the folder `GRILLE_H
 | `score.command` | The scorer behind `--score` | `grille configure score --command` |
 | `score.withhold` | The scorer's threshold | `grille calibrate --write`, or `grille configure score --withhold` |
 | `relay` | The chat model behind `--decipher`: `url`, `model`, `api`, `api_key_env`, `think` and `fallback`, or `false` for off | `grille configure relay` |
-| `embed.venv` | An embedder virtualenv for Grille alone | By hand |
 
 > [!TIP] 
 > Before editing settings by hand, run `grille schema` to create a schema your editor can use for hints. 
@@ -32,13 +31,15 @@ Grille keeps its settings in `~/.grille/grille.json`, or in the folder `GRILLE_H
 
 Grille ranks pages by meaning with the same embedder [Locket](../locket/README.md) uses: ollama serving `embeddinggemma-2:270m`, or onnxruntime running the same model in the virtualenv the Panoply pieces share. If Locket already has one, Grille uses it. Without either, Grille ranks by shared words and says so.
 
-You can override Grille's embedder by following Locket's guide: see [The embedder](../locket/make-it-yours.md#the-embedder).
+The embedder settings live in `~/.panoply/config.json`, which every Panoply piece reads, not in `grille.json`. `grille configure embedder` on its own shows the embedder Grille uses and where each value comes from. To give Grille its own model, apart from the one the other pieces use:
 
-To give Grille an embedder virtualenv of its own, apart from the one the Panoply pieces share, name it in `grille.json`:
-
-```json
-{"embed": {"venv": "~/grille-venv"}}
+```sh
+grille configure embedder --model nomic-embed-text
 ```
+
+`--ollama-host`, `--autostart` or `--no-autostart`, and `--venv` work the same way. Add `--global` to change the setting for every piece that does not set its own, and pass `default` as a value to follow the global setting again. Grille reads its own section first, then the global settings, then the shipped default; an environment variable such as `MEMFIND_MODEL` or `PANOPLY_VENV` beats them all. [Locket's guide](../locket/make-it-yours.md#the-embedder) explains each setting.
+
+An older `grille.json` with an `embed` section keeps working: the next `grille configure` moves it into Grille's section of `~/.panoply/config.json`.
 
 ## The scorer
 

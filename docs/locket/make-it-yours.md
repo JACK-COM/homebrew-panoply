@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.10.0 -->
+<!-- reviewed: locket 0.11.0 -->
 # Customize your Locket installation
 
 [← Locket](README.md)
@@ -120,11 +120,19 @@ Locket uses the first of these that responds:
 
 ### Use a different embedder
 
-`locket configure` holds the embedder settings in one file, `~/.locket/config.json`, which every way Locket runs reads: your terminal, your agent's hooks, the Claude Desktop server. One command changes all of them:
+The embedder settings live in `~/.panoply/config.json`, the one settings file every Panoply piece reads. Every way Locket runs reads it: your terminal, your agent's hooks, the Claude Desktop server. One command changes all of them:
 
 ```sh
 locket configure embedder --model nomic-embed-text
 ```
+
+That sets Locket's own model. To set it for every Panoply piece that does not set its own, add `--global`:
+
+```sh
+locket configure embedder --model nomic-embed-text --global
+```
+
+Locket reads its own section first, then the global settings, then the shipped default. If Grille sets its own model, a `--global` change does not reach Grille, and the command says so.
 
 The model must already be pulled (`ollama pull nomic-embed-text`). Locket asks ollama before writing and refuses a model it does not have, or one that is not an embedding model.
 
@@ -142,9 +150,10 @@ locket configure embedder --model nomic-embed-text --index
 | `--ollama-host URL` | Where ollama answers, for example another machine | `http://127.0.0.1:11434` |
 | `--autostart`, `--no-autostart` | Whether Locket starts ollama when it is not running | on |
 | `--venv PATH` | The virtualenv for the in-process rung | `~/.panoply/venv` |
-| `--reset` | Every setting back to its default | |
+| `--global` | The settings every piece shares, instead of Locket's own | |
+| `--reset` | Removes every setting from the section being written | |
 
-Pass `default` as a value to return one setting to its default: `locket configure embedder --model default`. The in-process rung always runs EmbeddingGemma 2, so a machine set to another model ranks with Gemma whenever ollama is down, and keeps a second index for it.
+Pass `default` as a value to remove one setting: `locket configure embedder --model default`. Locket then follows the global value, or the shipped default if none is set. The in-process rung always runs EmbeddingGemma 2, so a machine set to another model ranks with Gemma whenever ollama is down, and keeps a second index for it.
 
 An environment variable still wins over the file, for one command or one test:
 
