@@ -3,8 +3,8 @@ class Grille < Formula
 
   desc "Shows an agent only the pages that answer its question, withholding injections"
   homepage "https://github.com/JACK-COM/grille"
-  url "https://github.com/JACK-COM/grille/archive/refs/tags/v0.3.0.tar.gz"
-  sha256 "4b4bd71f7ffe3b929135966a013c152bb9b448443d19b415bcbd5fcc2ca2f97b"
+  url "https://github.com/JACK-COM/grille/archive/refs/tags/v0.3.1.tar.gz"
+  sha256 "ef7f66385ed19f695e818709e29f83ac9e2d756276c20f99f23b9e99669b7f30"
   license "MIT"
 
   depends_on "poppler"
