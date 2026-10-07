@@ -30,7 +30,7 @@ Is the following sequence familiar?
 3. **You want an answer quoted from the page, not paraphrased.**
    * `grille fetch --decipher` has a chat model of your choice pick out the lines that answer, and keeps a line only if it appears word for word on the page.
 4. **You need to check a list of links.**
-   * `grille verify` reports each URL's status, final address, type and redirects.
+   * `grille verify` reports each URL's status, final address, type and redirects. It flags a link that redirects to the bare root of a site, which is usually a bot wall, a login wall or a missing page, and `grille fetch` warns the same way.
 
 <details>
 <summary><b>When not to use it</b></summary>
