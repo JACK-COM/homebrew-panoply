@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.11.0 -->
+<!-- reviewed: locket 0.11.1 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/locket-dark.svg">
@@ -148,6 +148,14 @@ Two things `doctor` cannot see:
 
 - **`find` ranks a file you did not expect first.** A score is a hint, never a verdict. Read the top two or three files; the owner is often one you would not have searched.
 - **A hook message cites `prime-memory-discipline.md`.** That file holds the rules behind the checks where a setup carries it. Where it is absent, read the reference as Step 6 of `locket help install`.
+
+## Upgrade
+
+```sh
+brew update && brew upgrade locket && locket migrate
+```
+
+`locket migrate` finishes whatever a release needs from your machine, such as moving an older settings file to where the new version keeps it. It does nothing when nothing is pending, so run it after every upgrade. `locket doctor` names a step still waiting.
 
 ## Uninstall
 
