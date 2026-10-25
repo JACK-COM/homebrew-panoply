@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.11.4 -->
+<!-- reviewed: locket 0.11.6 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/locket-dark.svg">
@@ -132,6 +132,7 @@ Start with `locket doctor`. Each row is one part of the install, and each `fail`
 | `command` fails | `locket` is not on your `PATH`. | `locket install`, or open a new terminal after `brew install`. |
 | `stores` fails | Locket found no memory folder. | `locket init <your memory folder>`. |
 | `embedder` warns | Nothing can read by meaning, so `find` matches words only and misses a fact written differently. | [The embedder](make-it-yours.md#the-embedder). |
+| `embedder` warns, "model not yet fetched" | The in-process embedder is installed, but its model has not downloaded, often because a network blocks huggingface.co. | Download each file `doctor` lists on another machine and place it at the path shown, or use ollama. |
 | `index` warns | A store has not been read yet. | `locket index all`. |
 | `claude hooks` fails, "not registered" | The hooks are missing from `~/.claude/settings.json`. | `locket install --hooks`. |
 | `claude hooks` fails, "registered, but the write hook…" | Claude Code has not loaded the new hooks. | Run `/reload-plugins` in Claude Code, or restart the session. |

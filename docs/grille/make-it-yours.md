@@ -1,4 +1,4 @@
-<!-- reviewed: grille 0.3.3 -->
+<!-- reviewed: grille 0.3.4 -->
 # Customize your Grille installation
 
 [← Grille](README.md)
