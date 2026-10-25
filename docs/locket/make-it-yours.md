@@ -113,7 +113,7 @@ Locket uses the first of these that responds:
    python3 -m venv ~/.panoply/venv
    ~/.panoply/venv/bin/python -m pip install onnxruntime tokenizers
    ```
-   The model downloads into the virtualenv on first use, about 314 MB. A virtualenv made for `fastembed` already holds both packages.
+   The model downloads into the virtualenv on first use, about 314 MB. A virtualenv made for `fastembed` already holds both packages. If your network blocks huggingface.co, `locket doctor` lists each model file's address and the exact path to place it at, so you can download them on another machine and copy them across.
 3. **Word overlap**, when neither answers. Locket says so on its output.
 
 `locket embedder` shows which one answers on this machine. After any change, run `locket index all` to read your stores again.
