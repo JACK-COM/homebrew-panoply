@@ -1,4 +1,4 @@
-<!-- reviewed: grille 0.5.0 -->
+<!-- reviewed: grille 0.5.1 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/grille-dark.svg">
@@ -120,7 +120,7 @@ grille verify https://a.example https://b.example                     # status, 
 - **`--score`** also asks a scorer whether each returned page tries to steer the agent, and withholds a page that scores at its threshold or above. The pattern screen runs either way.
 - **`--render`** writes pages with no text layer, such as scans, as images, so the agent looks at three pictures instead of eighty.
 
-Page numbers count the PDF's own pages, the ones a `#page=N` link opens. Where the PDF defines printed page numbers, such as roman front matter, each heading gives the printed one too: `## page 79 (printed 76, score 0.62)`. A number printed only in a footer is not read.
+Page numbers count the PDF's own pages, the ones a `#page=N` link opens. Where the PDF prints its own page numbers, each heading gives the printed one too: `## page 79 (printed 76, score 0.62)`. Grille reads them from the PDF's page labels, such as roman front matter, or else from a "Page N of M" header or footer that most pages carry and that counts up page by page.
 
 Withheld passages are kept in a store for the session, under your system's temporary folder, and swept seven days after the session's last use.
 
