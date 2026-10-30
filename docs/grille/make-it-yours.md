@@ -1,4 +1,4 @@
-<!-- reviewed: grille 0.3.4 -->
+<!-- reviewed: grille 0.5.0 -->
 # Customize your Grille installation
 
 [← Grille](README.md)
@@ -110,7 +110,7 @@ Every part of every page is one call to your scorer, and Grille prints the count
 
 ## The relay
 
-`--decipher` hands the screened pages to a chat model you choose, which returns only the lines that answer the question. Grille then keeps a line only if it appears word for word on the page, so the model cannot put words in the page's mouth. The screen always runs first, so the model never reads a withheld passage.
+`--decipher` hands the screened pages to a chat model you choose, which returns only the lines that answer the question. Grille then keeps a line only if it appears word for word on the page, so the model cannot put words in the page's mouth. A tag the model adds after a line is set aside before the check, and only its page or chunk number is printed back, such as `[page 4]`. The screen always runs first, so the model never reads a withheld passage.
 
 Grille ships without a model, and reminds you on every run until you choose one or turn `--decipher` off.
 

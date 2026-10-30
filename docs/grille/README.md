@@ -1,4 +1,4 @@
-<!-- reviewed: grille 0.3.4 -->
+<!-- reviewed: grille 0.5.0 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/grille-dark.svg">
@@ -100,11 +100,13 @@ The steps your agent follows are written out in [INSTALL-grille.md](https://gith
 
 ## Everyday use
 
-Grille has no hooks and runs when your agent calls it. So the one habit that matters is teaching your agent to reach for it; see [Teach your agent to use it](#teach-your-agent-to-use-it).
+Grille runs when your agent calls it, or on every WebFetch once its Claude Code mod is loaded. So the one habit that matters is teaching your agent to reach for it; see [Teach your agent to use it](#teach-your-agent-to-use-it).
 
 ```sh
 grille sift manual.pdf --ask "What is the time between overhaul?"     # the pages that answer
 grille sift manual.pdf --ask "oil capacity" --ask "oil grade"         # one question per topic; they share --pages
+grille sift manual.pdf --ask "(1) oil capacity; (2) oil grade" --split
+                                                                      # the same, split from one compound question
 grille fetch https://example.com/spec --ask "What is the fuel capacity?"
 grille fetch https://example.com/spec --ask "What is the fuel capacity?" --decipher
                                                                       # only the lines that answer, checked word for word
@@ -114,6 +116,7 @@ grille verify https://a.example https://b.example                     # status, 
 ```
 
 - **`--pages N`** returns N pages instead of 10.
+- **`--split`** asks each part of a compound question on its own: a numbered list that opens the question, three or more parts joined by semicolons, two or more questions, or bulleted lines. Commas and "and" never split, because they run inside one topic, and a question that might be one stays whole. A lead-in such as "Quote every passage about:" is dropped.
 - **`--score`** also asks a scorer whether each returned page tries to steer the agent, and withholds a page that scores at its threshold or above. The pattern screen runs either way.
 - **`--render`** writes pages with no text layer, such as scans, as images, so the agent looks at three pictures instead of eighty.
 
@@ -121,7 +124,7 @@ Withheld passages are kept in a store for the session, under your system's tempo
 
 ### Teach your agent to use it
 
-An agent reads a PDF with its own tools unless something tells it otherwise. Two ways to tell it:
+An agent reads a PDF with its own tools unless something tells it otherwise. Three ways to tell it:
 
 - **In its instructions.** Add a line to the file your agent loads every session, such as `CLAUDE.md`: *"Read a PDF over a few pages, or any web page you will quote or act on, through `grille sift` or `grille fetch --ask`."*
 - **With a Locket trigger row**, which asks at the moment the agent goes to read a PDF whole. See [Trigger rows](../locket/make-it-yours.md#trigger-rows) in the Locket guide; a row like this does it:
@@ -131,6 +134,7 @@ An agent reads a PDF with its own tools unless something tells it otherwise. Two
    "unless_transcript": "\\bgrille (sift|screen|show)\\b",
    "question": "A PDF is about to be read whole. Run `grille sift <file> --ask \"<question>\"` instead."}
   ```
+- **With the Claude Code mod**, which answers every WebFetch call with `grille fetch --decipher --split`, so a web page is screened before any model reads it. WebFetch permission rules still bind, and a Grille failure refuses the call rather than falling back to the unscreened fetch. Every fetch takes seconds to a minute longer, and the relay sees the screened text. [INSTALL-grille.md](https://github.com/JACK-COM/grille/blob/main/src/grille/INSTALL-grille.md) shows how to load it; it covers WebFetch only, not curl, MCP fetch tools or a browser.
 
 ### How you know it is working
 
