@@ -219,7 +219,7 @@ On Hermes a hook cannot add a question to a call, so a row without `block` refus
 
 ## Configure where usage reads from
 
-`locket usage` reads the token counts Claude Code and Hermes already keep, and copies them into its own ledger at `~/.locket/usage.csv`. Claude Code deletes a transcript after 30 days and Hermes prunes a session after 90, so the ledger is the only place older days survive. Back it up with the rest of your files.
+`locket usage` reads the token counts Claude Code and Hermes already keep, and copies them into its own ledger at `~/.locket/usage.csv`. Claude Code deletes a transcript after 30 days and Hermes prunes a session after 90, so the ledger is the only place older days survive. Once a month is about four months old, the ledger keeps it as one row per project and model, not a row per day, so it stays small; the totals are unchanged and `locket usage` only reports recent days. Back it up with the rest of your files.
 
 It finds both hosts where they usually live: Claude Code's `~/.claude/projects`, or the folder `CLAUDE_CONFIG_DIR` names, and Hermes's `~/.hermes/state.db`, or the one under `HERMES_HOME`. If yours are somewhere else, point at the Claude Code `projects` folder and the Hermes database file:
 
