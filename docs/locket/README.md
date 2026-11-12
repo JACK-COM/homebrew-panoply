@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.11.9 -->
+<!-- reviewed: locket 0.11.10 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/locket-dark.svg">
@@ -137,6 +137,10 @@ Start with `locket doctor`. Each row is one part of the install, and each `fail`
 | `claude hooks` fails, "not registered" | The hooks are missing from `~/.claude/settings.json`. | `locket install --hooks`. |
 | `claude hooks` fails, "registered, but the write hook…" | Claude Code has not loaded the new hooks. | Run `/reload-plugins` in Claude Code, or restart the session. |
 | `claude hooks` or `usage` fails, "missing script" | The hooks point at an old copy of Locket, often after moving from scripts to Homebrew. | `locket install --hooks` again. |
+| `hook latency` or `grepassist latency` fails | On one of your stores the hook takes longer than Claude Code allows it, so Claude Code gives up on it and the write goes through unchecked. | `brew upgrade locket`. If you are current, something large sits inside a folder that store treats as memory; tell us which store. |
+| `hook latency` warns | The hook takes over half its allowed time on a store. The first run after an upgrade is slower, so run `doctor` again before acting. | Run `doctor` again; if it stays, treat it as the failure above. |
+| `hook latency` fails, "failed open" | The hook finished in time but skipped its check on that store, usually because of a file it cannot read. | Fix the file `doctor` names, or its permissions. |
+| `hook health` fails | Real hook runs since you last looked were cut off by Claude Code or skipped their check, so those writes went through unchecked. | Fix what `doctor` names, check what your agent wrote meanwhile with `locket audit`, then `locket doctor --ack`. |
 | `triggers` fails | A `triggers.json` row has a mistake, or rows exist and the hook is not registered. | `locket trigger check` names the row. |
 | `usage` warns | Nothing records usage as sessions end, so a day can age out before it is saved. | `locket install --hooks`. |
 | `codex hooks` warns, "not registered" | The hooks are missing from `~/.codex/hooks.json`. | `locket install --codex`. |
