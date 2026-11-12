@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.11.10 -->
+<!-- reviewed: locket 0.11.11 -->
 # Customize your Locket installation
 
 [← Locket](README.md)
