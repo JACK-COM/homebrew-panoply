@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.11.11 -->
+<!-- reviewed: locket 0.11.12 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/locket-dark.svg">
@@ -142,6 +142,9 @@ Start with `locket doctor`. Each row is one part of the install, and each `fail`
 | `hook latency` warns | The hook takes over half its allowed time on a store. The first run after an upgrade is slower, so run `doctor` again before acting. | Run `doctor` again; if it stays, treat it as the failure above. |
 | `hook latency` fails, "failed open" | The hook finished in time but skipped its check on that store, usually because of a file it cannot read. | Fix the file `doctor` names, or its permissions. |
 | `hook health` fails | Real hook runs since you last looked were cut off by Claude Code or skipped their check, so those writes went through unchecked. | Fix what `doctor` names, check what your agent wrote meanwhile with `locket audit`, then `locket doctor --ack`. |
+| `csv size` warns | A CSV your store declares has passed 5 MB. The file stays whole, and its size matters only once it slows the write hook. | Read the `csv latency` row. |
+| `csv latency` warns or fails | Writing a row into one of your largest declared CSVs takes the hook over half of the time Claude Code allows it, or all of it; past the limit, rows land unchecked. | `brew upgrade locket`. If you are current, tell us the file and its size. Keep it in one file: a split hides rows from everything that reads the file by name. |
+| `csv latency` warns, "not timed" | `doctor` could not build a test row for that file, because its last row has the wrong number of columns, repeats text found elsewhere in the file, or would break the file's schema. | Fix the last row if its columns are wrong; otherwise nothing. |
 | `triggers` fails | A `triggers.json` row has a mistake, or rows exist and the hook is not registered. | `locket trigger check` names the row. |
 | `usage` warns | Nothing records usage as sessions end, so a day can age out before it is saved. | `locket install --hooks`. |
 | `codex hooks` warns, "not registered" | The hooks are missing from `~/.codex/hooks.json`. | `locket install --codex`. |

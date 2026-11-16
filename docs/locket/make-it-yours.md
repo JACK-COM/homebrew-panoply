@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.11.11 -->
+<!-- reviewed: locket 0.11.12 -->
 # Customize your Locket installation
 
 [← Locket](README.md)
@@ -80,6 +80,8 @@ The keys used:
 `locket help manifest` lists every key, grouped by the question it answers.
 
 A CSV named `RULINGS*.csv`, `CLAIMS*.csv` or `HISTORY-*-Sessions.csv` is also checked row by row against a built-in schema: a row that breaks it is refused at write time, and `locket ledgers` checks every such file in a store. `locket help scan` prints each schema.
+
+Every CSV you declare stays one file however long it grows, because a split hides rows from every grep, script and agent that reads the file by name. `locket ledgers` names any past 5 MB, and `locket doctor` times the write hook against your largest ones, since a slow hook is what growth breaks first.
 
 ### Ledgers: the writes Locket can refuse
 
