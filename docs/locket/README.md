@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.12.0 -->
+<!-- reviewed: locket 0.13.0 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/locket-dark.svg">
@@ -142,7 +142,7 @@ Start with `locket doctor`. Each row is one part of the install, and each `fail`
 | `hook latency` or `grepassist latency` fails | On one of your stores the hook takes longer than Claude Code allows it, so Claude Code gives up on it and the write goes through unchecked. | `brew upgrade locket`. If you are current, something large sits inside a folder that store treats as memory; tell us which store. |
 | `hook latency` warns | The hook takes over half its allowed time on a store. The first run after an upgrade is slower, so run `doctor` again before acting. | Run `doctor` again; if it stays, treat it as the failure above. |
 | `hook latency` fails, "failed open" | The hook finished in time but skipped its check on that store, usually because of a file it cannot read. | Fix the file `doctor` names, or its permissions. |
-| `hook health` fails | Real hook runs since you last looked were cut off by Claude Code or skipped their check, so those writes went through unchecked. | Fix what `doctor` names, check what your agent wrote meanwhile with `locket audit`, then `locket doctor --ack`. |
+| `hook health` fails | Real hook runs since you last looked were cut off by their host or skipped their check, so those calls went through unchecked. | Fix what `doctor` names, check what your agent wrote meanwhile with `locket audit`, then `locket doctor --ack`. |
 | `csv size` warns | A CSV your store declares has passed 5 MB. The file stays whole, and its size matters only once it slows the write hook. | Read the `csv latency` row. |
 | `csv latency` warns or fails | Writing a row into one of your largest declared CSVs takes the hook over half of the time Claude Code allows it, or all of it; past the limit, rows land unchecked. | `brew upgrade locket`. If you are current, tell us the file and its size. Keep it in one file: a split hides rows from everything that reads the file by name. |
 | `csv latency` warns, "not timed" | `doctor` could not build a test row for that file, because its last row has the wrong number of columns, repeats text found elsewhere in the file, or would break the file's schema. | Fix the last row if its columns are wrong; otherwise nothing. |
@@ -151,7 +151,7 @@ Start with `locket doctor`. Each row is one part of the install, and each `fail`
 | `codex hooks` warns, "not registered" | The hooks are missing from `~/.codex/hooks.json`. | `locket install --codex`. |
 | `codex hooks` warns that Codex reports an entry untrusted or modified | The hooks work, and Codex runs them only once you trust them. `doctor` asks Codex which entries are trusted. | Run `/hooks` in Codex and trust each Locket entry. |
 | `codex hooks` warns that entries are "trusted in ollama-launch.config.toml" | You trusted them inside `ollama launch codex`, which saves trust to a file Codex never reads back, so it lapses on restart. | Copy the `[hooks.state...]` tables `doctor` names into `~/.codex/config.toml`, and copy them again after any change to `hooks.json`. |
-| `hermes hooks` warns | Some of the four Hermes hooks are missing from `config.yaml`. | Step 4 of `locket help install`. All four are needed. |
+| `hermes hooks` warns | Some of the five Hermes hooks are missing from `config.yaml`. | Step 4 of `locket help install`. All five are needed. |
 | `desktop server` fails | Claude Desktop points at a Locket that moved. | `locket install --desktop`, then restart the app. |
 
 Two things `doctor` cannot see:
@@ -175,7 +175,7 @@ locket uninstall               removes it, after asking once
 brew uninstall locket          if you installed with Homebrew
 ```
 
-Uninstall removes the `locket` command link, everything in `~/.locket` except the usage ledger, every cache, the Claude Code and Codex hook entries and the Claude Desktop server entry. It keeps a copy of each settings file it edits.
+Uninstall removes the `locket` command link, everything in `~/.locket` except the usage ledger, every cache, the Claude Code and Codex hook entries, and the Claude Desktop server entry when it runs Locket's server. It keeps a copy of each settings file it edits.
 
 It leaves behind:
 

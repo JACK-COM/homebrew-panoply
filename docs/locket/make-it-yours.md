@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.12.0 -->
+<!-- reviewed: locket 0.13.0 -->
 # Customize your Locket installation
 
 [← Locket](README.md)
@@ -253,4 +253,4 @@ It counts tokens and nothing else. Prices go stale, a subscription is not billed
 
 ## Council stores
 
-Each host's home folder is its **council store**: `~/.claude` for Claude Code, named `council`, `~/.codex` for Codex, named `codex`, and `~/.hermes` for Hermes, named `hermes`. Its rules, skills and memory are checked as one store, so a rule that restates a memory fact is caught like a second memory file would be. Trigger rows in `~/.claude` fire in every project, which makes it the place for lessons that apply everywhere. There is one council store per host, and Locket always looks for it in the default location.
+Each host's home folder is its **council store**: `~/.claude` for Claude Code, named `council`, `~/.codex` for Codex, named `codex`, and `~/.hermes` for Hermes, named `hermes`. Its rules, skills and memory are checked as one store, so a rule that restates a memory fact is caught like a second memory file would be. Trigger rows in `~/.claude` fire in every project, which makes it the place for lessons that apply everywhere. There is one council store per host, and Locket looks for it in its default location, or for Codex in the folder `CODEX_HOME` names.
