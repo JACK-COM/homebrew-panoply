@@ -1,4 +1,4 @@
-<!-- reviewed: grille 0.5.1 -->
+<!-- reviewed: grille 0.6.0 -->
 # Customize your Grille installation
 
 [← Grille](README.md)
@@ -16,6 +16,8 @@ When a part is missing, Grille names it on its output and carries on.
 ## Settings
 
 Grille keeps its settings in `~/.grille/grille.json`, or in the folder `GRILLE_HOME` names. `grille configure` writes it for you, so you rarely edit it by hand. `grille check` prints the settings in effect, one part per line.
+
+A setting that runs a program (a scorer, a relay fallback, turning ollama autostart on), sends text off this machine (a relay or embedder host), sends a key, names a virtualenv, or changes the scorer or its threshold is written only when you type `yes` at a terminal, and so is `grille calibrate --write`. Run by your agent, the command writes nothing and prints the line for you to run yourself.
 
 | Key | What it sets | Written by |
 |---|---|---|
@@ -39,7 +41,7 @@ grille configure embedder --model nomic-embed-text
 
 `--ollama-host`, `--autostart` or `--no-autostart`, and `--venv` work the same way. Add `--global` to change the setting for every piece that does not set its own, and pass `default` as a value to follow the global setting again. Grille reads its own section first, then the global settings, then the shipped default; an environment variable such as `MEMFIND_MODEL` or `PANOPLY_VENV` beats them all. [Locket's guide](../locket/make-it-yours.md#the-embedder) explains each setting.
 
-An older `grille.json` with an `embed` section keeps working until `grille migrate`, or the next `grille configure`, moves it into Grille's section of `~/.panoply/config.json`.
+An older `grille.json` with an `embed` section keeps working until `grille migrate`, or the next `grille configure`, moves it into Grille's section of `~/.panoply/config.json`. Its `venv` is neither read nor moved; name that virtualenv again with `grille configure embedder --venv`.
 
 ## The scorer
 
@@ -79,7 +81,7 @@ p = my_model_probability(request["text"])      # your model, from 0 to 1
 print(json.dumps({"answers": {"instructs_agent": {"noul": p}}}))
 ```
 
-Then point Grille at it:
+Then point Grille at it from your own terminal, and type `yes` when it names the command it will run:
 
 ```sh
 grille configure score --command "$HOME/bin/my-scorer.py"
@@ -90,7 +92,7 @@ Write the path out in full, or with `$HOME` as here: Grille does not expand a `~
 ### Give it a threshold
 
 > [!IMPORTANT]
-> A new scorer withholds nothing until you measure its threshold. A threshold never carries over from one scorer to another, so Augur's 0.3 means nothing for yours. Until then, its pages read `unscored`, and the pattern screen still runs.
+> A new scorer withholds nothing until you measure its threshold. A threshold never carries over from one scorer to another, so Augur's 0.3 means nothing for yours. Until then, its pages read `unscored`, `fetch --decipher` withholds every page, and the pattern screen still runs.
 
 Measure it on pages you actually read, labelled by hand, with at least one page written to steer an agent (`true`) and one that is not (`false`):
 
@@ -110,7 +112,7 @@ Every part of every page is one call to your scorer, and Grille prints the count
 
 ## The relay
 
-`--decipher` hands the screened pages to a chat model you choose, which returns only the lines that answer the question. Grille then keeps a line only if it appears word for word on the page, so the model cannot put words in the page's mouth. A tag the model adds after a line is set aside before the check, and only its page or chunk number is printed back, such as `[page 4]`. The screen always runs first, so the model never reads a withheld passage.
+`--decipher` hands the screened pages to a chat model you choose, which returns only the lines that answer the question. Grille then keeps a line only if it appears word for word on the page, so the model cannot put words in the page's mouth. A tag the model adds after a line is set aside before the check, and only its page or chunk number is printed back, such as `[page 4]`. The screen and the scorer always run first, so the model never reads a withheld passage, nor a page the scorer did not clear. If the relay fails, `fetch --decipher` exits 5 and returns nothing undeciphered.
 
 Grille ships without a model, and reminds you on every run until you choose one or turn `--decipher` off.
 
@@ -132,7 +134,7 @@ grille configure relay --url https://api.example.com/v1 --model NAME --api-key-e
 grille configure relay --off                                                                   # no --decipher, and no reminder
 ```
 
-For a hosted API, keep the key in your shell profile as the variable `--api-key-env` names. Grille reads it from there and never writes it into `grille.json`.
+For a hosted API, keep the key in your shell profile as the variable `--api-key-env` names. Grille reads it from there and never writes it into `grille.json`. A relay off this machine is reached over https, and the key goes only to the host and port you confirmed, which Grille records as `key_host`.
 
 > [!WARNING]
 > A hosted model sees the text of the pages you decipher, and so does a local server's cloud model, such as ollama's `:cloud` models. Send it public pages only.
@@ -151,3 +153,5 @@ The model is called with no tools, because it reads text written by strangers. G
 ## Network and proxies
 
 `fetch` and `verify` reach the network through the proxies in `HTTP_PROXY`, `HTTPS_PROXY` and `NO_PROXY` only. A proxy set in macOS System Settings is ignored: on a Mac, asking the system for its proxies stops Python from starting `pdftotext` or the scorer afterwards. If you need a proxy, export those variables in your shell profile.
+
+`fetch` follows a redirect within the site, or to https on the same host. A redirect to another site is reported with its address, screened like the page, for you or your agent to fetch on purpose. From an address you did not name as local, no redirect reaches your machine or a private network.

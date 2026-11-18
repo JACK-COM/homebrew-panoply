@@ -1,4 +1,4 @@
-<!-- reviewed: augur 0.6.0 -->
+<!-- reviewed: augur 0.7.0 -->
 # Customize your Augur installation
 
 [← Augur](README.md)
@@ -25,7 +25,7 @@ A **backend** is a decision model Augur can ask. Add one with:
 augur configure backend
 ```
 
-It asks where the model runs (Ollama on this machine, a hosted System One API, Laya, or a script of your own), then which model, and asks that model one real question before it saves anything. A model that does not answer is not saved, and the question shows in `usage.csv` under the caller `configure`. The same command manages what you have:
+It asks where the model runs (Ollama on this machine, a hosted System One API, Laya, or a script of your own), then which model, and asks that model one real question before it saves anything. A model that does not answer is not saved, and the question shows in `usage.csv` under the caller `configure`. A backend that runs a program (a script, or Laya's interpreter or checkpoint), sends your text off this machine, or sends a key waits for you to type `yes` before anything runs or is sent. The same command manages what you have:
 
 ```sh
 augur configure backend --list            # every backend, its type, and which is the default
@@ -33,7 +33,7 @@ augur configure backend nimble --default  # make one the default
 augur configure backend --remove nimble   # remove yours; a shipped name gets its shipped settings back
 ```
 
-Every prompt has a flag, so a script or an agent can do the same without a terminal. `augur configure backend -h` lists them, and the sections below give each kind of backend's command.
+Every prompt has a flag, so the same commands run without the questions. `augur configure backend -h` lists them, and the sections below give each kind of backend's command. Whatever needs your `yes` needs a person at a terminal, and so does making a backend off this machine the default, or a `--remove` that would leave one as the default. Run by a script or an agent, such a command saves nothing and prints the line for you to run yourself; a keyless model on this machine needs no one.
 
 ### What it writes
 
@@ -93,14 +93,15 @@ augur configure backend acme --type systemone --url https://api.acme.example/v1/
   --key-service ACME_API_KEY --key-env ACME_API_KEY --price 0.05 --store-key
 ```
 
-That stores the key, asks one question, and writes:
+That names the host your text and key will go to and waits for your `yes`, then stores the key, asks one question, and writes:
 
 ```json
 {"backends": {"acme": {"type": "systemone", "url": "https://api.acme.example/v1/systemone", "model": "acme-2.1",
-                       "keychain_service": "ACME_API_KEY", "env_key": "ACME_API_KEY", "price_per_mtok": 0.05}}}
+                       "keychain_service": "ACME_API_KEY", "env_key": "ACME_API_KEY", "key_host": "api.acme.example:443",
+                       "price_per_mtok": 0.05}}}
 ```
 
-Augur looks for the key in the macOS keychain service first, then in the environment variable. Give each host names of its own, so one host's key is never sent to another.
+Augur looks for the key in the macOS keychain service first, then in the environment variable, and sends it only to the host and port in `key_host`, the one you confirmed. A backend off this machine is reached over https, and Augur follows no redirect. An entry written by hand with a key is refused until you confirm its host with `augur configure backend acme --url URL`. Give each host a keychain service and variable of its own.
 
 #### Local, with Ollama
 
@@ -134,7 +135,7 @@ uv venv --python 3.12 ~/.augur-laya
 uv pip install --python ~/.augur-laya/bin/python laya torch
 ```
 
-Then tell Augur where it is, which checkpoint to load if you trained your own, and, if `laya` is your only backend, to use it by default:
+Then, in your own terminal, tell Augur where it is, which checkpoint to load if you trained your own, and, if `laya` is your only backend, to use it by default. Augur will run that interpreter, so it asks for your `yes`:
 
 ```sh
 augur configure backend laya --python ~/.augur-laya/bin/python --checkpoint you/your-fine-tune --device mps --default
@@ -188,13 +189,13 @@ for name, question in request["questions"].items():
 print(json.dumps({"answers": answers}))
 ```
 
-Add it under a name of your choosing, and make it the default if you like:
+Add it under a name of your choosing, in your own terminal, and make it the default if you like:
 
 ```sh
 augur configure backend mine --type command --command /Users/you/bin/my-augur-model --price 0 --default
 ```
 
-That asks the script one real question, then writes:
+Augur will run the script on every call, so that waits for your `yes`, asks the script one real question, then writes:
 
 ```json
 {
@@ -214,14 +215,14 @@ You can name several, one per model, and compare them on the same examples with 
 
 ### Settings each type takes
 
-Every entry takes `type` (`--type`) and `price_per_mtok` (`--price`), the price per million input tokens the usage ledger records.
+Every entry takes `type` (`--type`) and `price_per_mtok` (`--price`), the price per million input tokens the usage ledger records. It can also take `models`, the other models a call may name, and `workers`, how many calls `calibrate` and `score` make at once (1 for a server on this machine, otherwise 6), both written by hand.
 
 | Type | Key (flag) | What it changes |
 |---|---|---|
 | `systemone` | `url` (`--url`) | The System One endpoint. Required. |
 | `systemone` | `model` (`--model`) | The model to ask. Pin a version, as `jev` does. |
 | `systemone` | `keychain_service` (`--key-service`), `env_key` (`--key-env`) | Where to find the API key: the macOS keychain entry, then the environment variable. Leave both out for a host that takes no key. |
-| `systemone` | `timeout` (`--timeout`) | Seconds to wait for an answer. Defaults to 60. |
+| `systemone` | `timeout` (`--timeout`) | Seconds to wait for an answer. Defaults to 60. A whole call, retries included, ends within about three of these. |
 | `laya` | `python` (`--python`) | The virtualenv's Python. Without it, `laya` is unavailable. |
 | `laya` | `checkpoint` (`--checkpoint`) | The model to load, such as your own fine-tune. |
 | `laya` | `device` (`--device`) | `cuda`, `mps` or `cpu`. |
@@ -230,7 +231,7 @@ Every entry takes `type` (`--type`) and `price_per_mtok` (`--price`), the price 
 | `command` | `model` (`--model`) | Sent to the script as `model` in every request. |
 | `command` | `timeout` (`--timeout`) | Seconds to wait for an answer. Defaults to 60. |
 
-`--model` on a single call overrides `model` or `checkpoint` for that call. `augur check` names any key that does not belong to an entry's type.
+`--model` on a single call overrides `model` or `checkpoint` for that call, when it names the entry's own model or one in its `models`; a keyless server on this machine, such as Ollama, takes any model. `augur check` names any key that does not belong to an entry's type.
 
 > [!IMPORTANT]
 > Augur pins `jev` to one version, because a threshold you measured on one model does not carry over to the next. When you change `model`, `checkpoint` or backend, run `augur calibrate` again before you trust the old threshold. A published benchmark is no substitute: it measures someone else's questions.
@@ -290,6 +291,8 @@ calibration on backend jev: 4 items x 1 run(s), 1 question(s), 1,428 input token
 
 `--runs 3` asks each item three times and averages, which shows how steady the answers are. `--limit` and `--questions` run a quick subset.
 
+Each answer is written to `results-<backend>.jsonl` in the `--out` folder as it lands. If a run is interrupted, run the same command again with `--resume`: it asks only what was left unasked, and asks a failed item once more.
+
 ### Compare two runs
 
 After changing a question, a model or a backend, compare against the run before:
@@ -325,4 +328,4 @@ except AugurUnavailable as e:
 - **`batch(items, make_questions, threshold=...)`** asks about up to 20 texts in one call, and asks again, one text at a time, about any answer that lands close to your threshold.
 - **`AugurUnavailable`** is raised whenever there is no answer. Catch it: nothing that must succeed may depend on Augur.
 
-A program that cannot import Python can run `augur ask --request -` instead, with the whole call as JSON on stdin. `augur ask -h` shows the fields.
+A program that cannot import Python can run `augur ask --request -` instead, with the whole call as JSON on stdin. `augur ask -h` shows the fields. For many calls, `augur score` reads one call per line on stdin and prints one reply per line, in order, through one process. Give it `--against` with a calibrate run's `shape-<backend>.json` and it warns when your texts are far longer or shorter than the ones the threshold was measured on.

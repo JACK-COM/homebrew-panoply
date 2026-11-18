@@ -1,4 +1,4 @@
-<!-- reviewed: augur 0.6.0 -->
+<!-- reviewed: augur 0.7.0 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/augur-dark.svg">
@@ -54,9 +54,9 @@ brew install jack-com/panoply/augur
 > [!IMPORTANT]
 > Spell the formula in full. Homebrew has an unrelated app called `augur`, and `brew install augur` installs that instead.
 
-Then run **`augur configure backend`**. It asks where your model runs and which model to use, then asks that model one real question and saves it only if it answers.
+Then run **`augur configure backend`**. It asks where your model runs and which model to use, then asks that model one real question and saves it only if it answers. Before it saves a backend that runs a program, sends your text off this machine or sends a key, it says which and waits for you to type `yes`.
 
-Or say to your agent: **"Run `augur help install` and follow it."** The agent checks the install, sets up the backend you choose with the same command, proves it answers, and reports back in five lines or fewer. A key stays your step: the agent gives you the command, and you type the key into the prompt.
+Or say to your agent: **"Run `augur help install` and follow it."** The agent checks the install, sets up the backend you choose, proves it answers, and reports back in five lines or fewer. It sets up a keyless model on your own machine, such as Ollama's, by itself. Any other backend, and a key, stays your step: the agent gives you the command, and you run it in your own terminal, type `yes`, and type the key into the prompt.
 
 Augur needs a **backend**: the decision model that answers its questions. You choose one of four:
 
@@ -111,7 +111,9 @@ Augur has no hooks and runs only when something asks it: you, your agent, a scri
 augur ask -q rule.json -t "the sentence to check"     # one call; answer returned as JSON
 augur ask -q rule.json -s state.json                  # the text input as a JSON object instead of a string
 augur ask --request - < call.json                     # the whole call as JSON on stdin, for a program
+augur score < calls.jsonl > replies.jsonl             # many calls, one per line; one reply per line, in order
 augur calibrate items.json --out runs/                # how good the answers are, on your own examples
+augur calibrate items.json --out runs/ --resume       # finish a run that was interrupted
 augur check --live                                    # the backend answers, and answers right
 ```
 
@@ -153,7 +155,9 @@ Every failure prints one line starting `unavailable:` and exits with code 3. Bad
 |---|---|---|
 | `no key: keychain service TYPESAFE_API_KEY empty and TYPESAFE_API_KEY unset` | On `jev`, Augur cannot find your TypeSafe key. Another hosted backend names its own. | Run the `augur configure backend … --store-key` command the message names, or change backends. |
 | `HTTP 401` or `HTTP 403` | The key was found and refused. | Check the key with its provider, then store it again. |
-| `HTTP 429 (rate limited, retries exhausted)` | Too many calls too fast. | Wait, or lower `--workers` on `calibrate`. |
+| `HTTP 429 (retries exhausted)` | Too many calls too fast. | Wait, or lower `--workers` on `calibrate` or `score`. |
+| `HTTP 5xx (retries exhausted)` or `network: … (retries exhausted)` | The backend kept failing or dropping the connection, through every retry. | Wait and try again, or check the backend's status. |
+| `the key was confirmed for …, not …` | The entry's key has not been confirmed for the host it names, such as an entry written by hand. | Run the `augur configure backend` command the message names, in your own terminal, and type `yes`. |
 | `network or body: … Connection refused` | Nothing is listening at the backend's `url`. For a local model, Ollama is not running. | Start Ollama, or fix the `url`. |
 | `network or body: …` | Augur could not reach the backend. | Check your connection or proxy. |
 | `HTTP 404: … not found, try pulling it first` | Ollama has no model by the entry's `model` name. | `ollama pull` it, or fix the name. |

@@ -1,4 +1,4 @@
-<!-- reviewed: grille 0.5.1 -->
+<!-- reviewed: grille 0.6.0 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/grille-dark.svg">
@@ -53,7 +53,7 @@ brew install jack-com/panoply/grille
 
 Then say to your agent: **"Run `grille help install` and follow it."**
 
-The agent sets up ranking by meaning, asks you which chat model, if any, `--decipher` should use, and reports back in five lines or fewer. Homebrew installs poppler with Grille, for reading PDFs.
+The agent sets up ranking by meaning, asks you which chat model, if any, `--decipher` should use, and reports back in five lines or fewer. A setting that runs a program, sends text or a key off your machine, names a virtualenv, or changes the scorer is yours to make: the agent gives you the command, and you run it in your own terminal and type `yes`. Homebrew installs poppler with Grille, for reading PDFs.
 
 ### Advanced: set it up yourself
 
@@ -62,7 +62,7 @@ The steps your agent follows are written out in [INSTALL-grille.md](https://gith
 1. **Get the command.** Homebrew as [above](#easy-let-your-agent-do-it), or `uv tool install git+https://github.com/JACK-COM/grille` with poppler from your package manager. Run `grille selftest`, which needs no network.
 2. **Give it an embedder**, so it ranks pages by meaning. Grille shares Locket's; see [Ranking](make-it-yours.md#ranking).
 3. **Choose a relay for `--decipher`, or turn it off.** Until you do, every command prints a one-line reminder. See [The relay](make-it-yours.md#the-relay).
-4. **Install `Augur`, if you want `--score`.** It is Grille's default scorer. See [The scorer](make-it-yours.md#the-scorer).
+4. **Install `Augur`, if you want `--score` or `--decipher`.** It is Grille's default scorer, and `--decipher` withholds every page a scorer has not cleared. See [The scorer](make-it-yours.md#the-scorer).
 5. **Check it.** `grille check`.
 
 ## The first five minutes
@@ -83,7 +83,7 @@ The steps your agent follows are written out in [INSTALL-grille.md](https://gith
    ```
    The Cessna 172S carries 56 US gallons of fuel, of which 53 are usable, in two wing tanks.
 
-   [grille: withheld 1 line on p.1: addresses an AI agent. id=938d03ca; `grille show 938d03ca` to read it]
+   [grille: withheld 1 line on p.1: addresses an AI agent. id=a38cfaf339f5; `grille show a38cfaf339f5` to read it]
 
    Before each flight, sump both tanks and check for water. Remove the cowl to inspect the fuel strainer.
    ```
@@ -111,13 +111,13 @@ grille fetch https://example.com/spec --ask "What is the fuel capacity?"
 grille fetch https://example.com/spec --ask "What is the fuel capacity?" --decipher
                                                                       # only the lines that answer, checked word for word
 grille screen page.html                                               # the whole document, screened, no ranking
-grille show 3f9a1c                                                    # a withheld passage, deliberately
+grille show 3f9a1c07d2e4                                              # a withheld passage, deliberately
 grille verify https://a.example https://b.example                     # status, final address, type, redirects
 ```
 
 - **`--pages N`** returns N pages instead of 10.
 - **`--split`** asks each part of a compound question on its own: a numbered list that opens the question, three or more parts joined by semicolons, two or more questions, or bulleted lines. Commas and "and" never split, because they run inside one topic, and a question that might be one stays whole. A lead-in such as "Quote every passage about:" is dropped.
-- **`--score`** also asks a scorer whether each returned page tries to steer the agent, and withholds a page that scores at its threshold or above. The pattern screen runs either way.
+- **`--score`** also asks a scorer whether each returned page tries to steer the agent, and withholds a page that scores at its threshold or above. The pattern screen runs either way. `--decipher` always scores, and withholds any page the scorer did not clear, including when it did not answer or has no threshold.
 - **`--render`** writes pages with no text layer, such as scans, as images, so the agent looks at three pictures instead of eighty.
 
 Page numbers count the PDF's own pages, the ones a `#page=N` link opens. Where the PDF prints its own page numbers, each heading gives the printed one too: `## page 79 (printed 76, score 0.62)`. Grille reads them from the PDF's page labels, such as roman front matter, or else from a "Page N of M" header or footer that most pages carry and that counts up page by page.
@@ -136,7 +136,7 @@ An agent reads a PDF with its own tools unless something tells it otherwise. Thr
    "unless_transcript": "\\bgrille (sift|screen|show)\\b",
    "question": "A PDF is about to be read whole. Run `grille sift <file> --ask \"<question>\"` instead."}
   ```
-- **With the Claude Code mod**, which answers every WebFetch call with `grille fetch --decipher --split`, so a web page is screened before any model reads it. WebFetch permission rules still bind, and a Grille failure refuses the call rather than falling back to the unscreened fetch. Every fetch takes seconds to a minute longer, and the relay sees the screened text. [INSTALL-grille.md](https://github.com/JACK-COM/grille/blob/main/src/grille/INSTALL-grille.md) shows how to load it; it covers WebFetch only, not curl, MCP fetch tools or a browser.
+- **With the Claude Code mod**, which answers every WebFetch call with `grille fetch --decipher --split`, so a web page is screened before any model reads it. WebFetch permission rules still bind, and a Grille failure refuses the call rather than falling back to the unscreened fetch. A redirect to another site is not followed: the model sees a note naming the new address, screened, and fetches it again if it means to, so that fetch passes your permission rules too. Every fetch takes seconds to a minute longer, and the relay sees the screened text. [INSTALL-grille.md](https://github.com/JACK-COM/grille/blob/main/src/grille/INSTALL-grille.md) shows how to load it; it covers WebFetch only, not curl, MCP fetch tools or a browser.
 
 ### How you know it is working
 
@@ -153,8 +153,8 @@ Start with `grille check`. Each line names one part.
 | `pdftotext: missing` | poppler is not installed, so PDFs cannot be read. | `brew install poppler`, or your package manager's `poppler-utils`. |
 | `pdftoppm: missing` | Only `--render` needs it. | Same as above. |
 | `embedder: none reachable` | `sift` ranks by shared words and misses a page that answers in other words. | [Ranking](make-it-yours.md#ranking). |
-| `score: augur …: not on PATH` | `--score` marks every page unscored. The pattern screen still runs. | `brew install jack-com/panoply/augur`, or [use another scorer](make-it-yours.md#the-scorer). |
-| `score: … unscored, …` | Your scorer has no threshold yet, so it withholds nothing. | `grille calibrate` with `--write`. See [The scorer](make-it-yours.md#the-scorer). |
+| `score: augur …: not on PATH` | `--score` marks every page unscored, and `--decipher` withholds every page. The pattern screen still runs. | `brew install jack-com/panoply/augur`, or [use another scorer](make-it-yours.md#the-scorer). |
+| `score: … unscored, …` | Your scorer has no threshold yet, so `--score` withholds nothing and `--decipher` withholds every page. | `grille calibrate` with `--write`, in your own terminal. See [The scorer](make-it-yours.md#the-scorer). |
 | `relay: --decipher is not set up` | No chat model is named, and every run reminds you. | `grille configure relay --detect`, or `--off`. See [The relay](make-it-yours.md#the-relay). |
 | A misspelled key in `grille.json` | A setting is not in effect. | Fix the key it names. |
 

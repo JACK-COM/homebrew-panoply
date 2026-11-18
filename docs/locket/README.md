@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.13.1 -->
+<!-- reviewed: locket 0.13.2 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/locket-dark.svg">
@@ -94,6 +94,7 @@ Mostly, you do nothing. The hooks run while your agent works:
 - **Before the agent writes a fact into memory**, Locket checks whether another file already holds it. If one does, the agent is told which file, and rewrites that file instead of adding a second copy.
 - **Before the agent searches your memory with plain text search**, Locket adds the files most likely to hold the idea by meaning, since a text search misses the same fact in other words.
 - **Before the agent writes into memory through the shell**, Locket stops it and asks it to use its file tools, which the other hooks can see. A memory file handed to a shell command Locket does not know to be read-only draws a note rather than a stop, since Locket cannot tell from the command whether it writes.
+- **Before the agent changes a setting that is yours to choose**, Locket refuses it: the list of folders you trust, the Panoply settings in `~/.panoply/config.json`, and Augur's and Grille's settings files, `~/.augur/augur.json` and `~/.grille/grille.json`, wherever `AUGUR_HOME` or `GRILLE_HOME` moves them. A shell command naming one of these files is refused whether or not it writes. The refusal names the file and the command you run in your own terminal to change it.
 - **When a Claude Code session ends**, Locket copies that session's token counts into its own ledger.
 
 A few commands are worth running yourself, or asking your agent to run at the end of a working session:
