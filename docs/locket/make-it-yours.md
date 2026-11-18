@@ -31,7 +31,7 @@ A **store** is a folder of markdown your agent writes memory into. Locket checks
   ```
 
   > [!IMPORTANT]
-  > A `locket.json` acts only in a folder you have trusted. A trusted folder's `locket.json` can add trigger rows that refuse tool calls, ledger rules, and source files from elsewhere on disk, so a folder cloned from someone else must not switch those on by itself. Trust is yours to give at a terminal; no agent can give it, and `locket untrust <folder>` takes it back. `locket doctor` lists any folder holding a `locket.json` you have not trusted.
+  > A `locket.json` acts only in a folder you have trusted. A trusted folder's `locket.json` can add trigger rows that refuse tool calls, ledger rules, and source files from elsewhere on disk, so a folder cloned from someone else must not switch those on by itself. Trust is yours to give at a terminal; no agent can give it, and `locket untrust <folder>` takes it back. Trust covers the folder's `locket.json`, `reference-sources.json` and trigger rows as they stand when you give it: after you edit one, or a pull changes one, run `locket trust <folder>` again. `locket doctor` lists any folder holding a `locket.json` you have not trusted, or one that changed since you did.
 
 ### Combine multiple stores
 
