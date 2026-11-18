@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.13.0 -->
+<!-- reviewed: locket 0.13.1 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/locket-dark.svg">
@@ -83,7 +83,7 @@ The steps your agent follows are written out in [INSTALL-locket.md](https://gith
    ```
    The top of the list is the file most likely to hold that fact already, with a score. Try a different wording of the same fact; with an embedder, the same file should still come first.
 3. Run `locket audit`. It lists **sentence pairs that say the same thing in two different files**.
-   * Read a few. Some will be real copies to merge, and some will be an index line pointing at the file it describes, which is fine.
+   * Read a few. Some will be real copies to merge. An index line restating the file it links to is the index doing its job, so `audit` counts it in its first line and leaves it out of the list.
    * You can work through the results with your agent, or ignore them for now.
 4. Run `locket usage`. You should see this week's tokens for Claude Code and Hermes, whichever you use.
 
