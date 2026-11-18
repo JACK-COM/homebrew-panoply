@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.11.12 -->
+<!-- reviewed: locket 0.12.0 -->
 # Customize your Locket installation
 
 [← Locket](README.md)
@@ -24,8 +24,14 @@ A **store** is a folder of markdown your agent writes memory into. Locket checks
 
   Replace `<path/to/folder>` with a path to the target folder. Locket names the store after the folder and writes that name into the folder's `locket.json`; add `--name <label>` to choose another. A name another store already holds is refused.
 
-  > [!IMPORTANT] 
-  > Only `init` adds a store to the list. Locket does not search your disk, so a `locket.json` you write by hand in a folder you never ran `init` on is never read.
+  `init` asks you to type `yes` before it trusts the folder. If an agent ran it, it prints a command for you to run in your own terminal instead:
+
+  ```sh
+  locket trust <path/to/folder>
+  ```
+
+  > [!IMPORTANT]
+  > A `locket.json` acts only in a folder you have trusted. A trusted folder's `locket.json` can add trigger rows that refuse tool calls, ledger rules, and source files from elsewhere on disk, so a folder cloned from someone else must not switch those on by itself. Trust is yours to give at a terminal; no agent can give it, and `locket untrust <folder>` takes it back. `locket doctor` lists any folder holding a `locket.json` you have not trusted.
 
 ### Combine multiple stores
 

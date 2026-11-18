@@ -1,4 +1,4 @@
-<!-- reviewed: locket 0.11.12 -->
+<!-- reviewed: locket 0.12.0 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/locket-dark.svg">
@@ -62,7 +62,7 @@ The agent finds your memory folders, sets up reading by meaning, asks you before
 The steps your agent follows are written out in [INSTALL-locket.md](https://github.com/JACK-COM/locket/blob/main/src/locket/INSTALL-locket.md), and you can follow them by hand. In short:
 
 1. **Get the command.** Homebrew as above, or `uv tool install git+https://github.com/JACK-COM/locket`, or copy the scripts and run `python3 locket.py install`.
-2. **Tell Locket where your memory is.** Claude Code's, Codex's and Hermes's folders are found on their own. For any other folder, run `locket init <folder>`. See [Stores](make-it-yours.md#stores).
+2. **Tell Locket where your memory is.** Claude Code's, Codex's and Hermes's folders are found on their own. For any other folder, run `locket init <folder>`, and type `yes` when it asks whether to trust the folder. See [Stores](make-it-yours.md#stores).
 3. **Give it an embedder**, so it can match a fact written in new words. See [The embedder](make-it-yours.md#the-embedder).
 4. **Register the hooks.** 
    * On Claude Code, `locket install --hooks`. 
@@ -133,6 +133,7 @@ Start with `locket doctor`. Each row is one part of the install, and each `fail`
 | `stores` fails | Locket found no memory folder. | `locket init <your memory folder>`. |
 | `embedder` warns | Nothing can read by meaning, so `find` matches words only and misses a fact written differently. | [The embedder](make-it-yours.md#the-embedder). |
 | `embedder` warns, "model not yet fetched" | The in-process embedder is installed, but its model has not downloaded, often because a network blocks huggingface.co. | Download each file `doctor` lists on another machine and place it at the path shown, or use ollama. |
+| `trust` warns | A folder you or an agent opened holds a `locket.json` you have not trusted, so Locket ignores it. | If you made it, run the `locket trust` command `doctor` prints, in your own terminal. |
 | `registry` warns | A folder you once ran `locket init` on has lost its `locket.json`, so `all` and the store list skip it. | Run the `locket init` or `locket forget` command `doctor` prints. |
 | `index` warns | A store has not been read yet. | `locket index all`. |
 | `claude hooks` fails, "not registered" | The hooks are missing from `~/.claude/settings.json`. | `locket install --hooks`. |
