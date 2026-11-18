@@ -29,9 +29,8 @@ class Locket < Formula
   end
 
   test do
-    # memscan's own selftest needs no embedder; memfind's reaches for ollama,
-    # which the test sandbox cannot, so `locket selftest` is left to `doctor`
-    assert_match "selftest ok", shell_output("#{libexec}/memscan.py selftest 2>&1")
+    # the install smoke check, which runs on scratch stores and needs no embedder
+    assert_match "selftest ok", shell_output("#{bin}/locket selftest 2>&1")
     assert_match version.to_s, shell_output("#{bin}/locket --version")
     assert_match "# Install Locket", shell_output("#{bin}/locket help install")
     fact = "The tide gauge at the north pier is read at dawn and at dusk by the harbourmaster.\n"
