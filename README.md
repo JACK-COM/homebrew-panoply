@@ -51,7 +51,7 @@ Every piece stands on its own. However, when installed together, they share what
 <details style="border: 1px dashed; border-radius: 4px;">
 <summary style="font-size:smaller; cursor:pointer; line-height:2">The technical details</summary>
 
-- **Python.** Every piece runs on Python 3.9 or later using only the standard library. Homebrew installs the Python it needs.
+- **Python.** Every piece runs on Python 3.9 or later with numpy, which holds the pieces' shared vector math. Homebrew installs both.
 - **The embedder.** Ranking by meaning uses Google's EmbeddingGemma 2 model, served by [ollama](https://ollama.com) or run in-process by onnxruntime. Without either, Locket and Grille fall back to shared words and say so on their output.
 - **The shared virtualenv.** The in-process embedder and its model live in one virtualenv every piece uses: `~/.panoply/venv`, or an older `~/.locket/venv` when that exists, or wherever `PANOPLY_VENV` points. `uninstall` removes it only with the last piece.
 - **Grille's scorer.** Grille runs `augur ask --request - --caller grille` by default. Any command that speaks the same JSON can take Augur's place; the [Grille guide](docs/grille/README.md) shows how.

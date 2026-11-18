@@ -7,6 +7,7 @@ class Grille < Formula
   sha256 "48d9577cd5dde75f328b874c4ed205b558b588bfc97945d91b120a90c8466f1a"
   license "MIT"
 
+  depends_on "numpy"
   depends_on "poppler"
   depends_on "python@3.14"
 

@@ -7,6 +7,7 @@ class Augur < Formula
   sha256 "471691c1dce5311b429aa2a7ccfdadf19d0ba6c4c218a3baea4e72daf9612403"
   license "MIT"
 
+  depends_on "numpy"
   depends_on "python@3.14"
 
   def install

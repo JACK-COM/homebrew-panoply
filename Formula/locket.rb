@@ -7,6 +7,7 @@ class Locket < Formula
   sha256 "a24099311f1d7b32ee5e6076f1e0af90c34f54e20b6e58ba97e93074d2cc29e2"
   license "MIT"
 
+  depends_on "numpy"
   depends_on "python@3.14"
 
   def install
