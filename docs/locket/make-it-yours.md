@@ -1,9 +1,9 @@
-<!-- reviewed: locket 0.13.3 -->
+<!-- reviewed: locket 0.13.4 -->
 # Customize your Locket installation
 
 [← Locket](README.md)
 
-Locket works out of the box on Claude Code, Codex and Hermes. This page is for everything else: your own memory folders, a different embedder, lessons you want put to the agent, and usage kept somewhere unusual. Each section shows one worked example and points to the command that lists every option, so this page never has to keep up with a changing list.
+Locket works out of the box on Claude Code, Codex and Hermes. For another agent, [the host contract](https://github.com/JACK-COM/locket/blob/main/docs/HOST-CONTRACT.md) says what it has to offer for each of Locket's checks to work, and how to test it. This page is for everything else: your own memory folders, a different embedder, lessons you want put to the agent, and usage kept somewhere unusual. Each section shows one worked example and points to the command that lists every option, so this page never has to keep up with a changing list.
 
 **On this page:** [Stores](#stores) · [The embedder](#the-embedder) · [Trigger rows](#trigger-rows) · [Where usage reads from](#configure-where-usage-reads-from) · [Council stores](#council-stores)
 
