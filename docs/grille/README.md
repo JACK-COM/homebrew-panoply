@@ -1,4 +1,4 @@
-<!-- reviewed: grille 0.6.0 -->
+<!-- reviewed: grille 0.6.1 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/grille-dark.svg">
