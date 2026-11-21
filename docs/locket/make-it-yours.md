@@ -116,11 +116,13 @@ Without one, `locket find` compares words only, and a fact written in new words 
 Locket uses the first of these that responds:
 
 1. **[ollama](https://ollama.com)** 0.36 or later, serving `embeddinggemma-2:270m`. If ollama is installed, `ollama pull embeddinggemma-2:270m` is all it takes; Locket starts the server when it needs it. An older ollama refuses the pull and asks for an upgrade.
-2. **onnxruntime**, which runs the same model inside Python with no server. It lives in the virtualenv every Panoply piece shares:
+2. **onnxruntime**, which runs the same model inside Python with no server. It lives in the virtualenv every Panoply piece shares, built with the Python the formula runs, which the first line of the keg's `locket.py` names. The `python3` on your PATH can be a newer one Homebrew moved to, and a virtualenv it builds is invisible to Locket:
    ```sh
-   python3 -m venv ~/.panoply/venv
+   py="$(head -1 "$(brew --prefix locket)/libexec/locket.py" | cut -c3-)"
+   "$py" -m venv ~/.panoply/venv
    ~/.panoply/venv/bin/python -m pip install onnxruntime tokenizers
    ```
+   `locket doctor` names a virtualenv built by the wrong Python, with the command that rebuilds it.
    The model downloads into the virtualenv on first use, about 314 MB. A virtualenv made for `fastembed` already holds both packages. If your network blocks huggingface.co, `locket doctor` lists each model file's address and the exact path to place it at, so you can download them on another machine and copy them across.
 3. **Word overlap**, when neither answers. Locket says so on its output.
 
