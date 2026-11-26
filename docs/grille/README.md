@@ -1,4 +1,4 @@
-<!-- reviewed: grille 0.7.0 -->
+<!-- reviewed: grille 0.7.1 -->
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../marks/grille-dark.svg">
@@ -23,7 +23,7 @@ Is the following sequence familiar?
 
 ## When to use it
 
-1. **Your agent reads long PDFs, saved web pages or text dumps.**
+1. **Your agent reads long PDFs, Word documents, saved web pages or text dumps.**
    * Grille hands it the few pages that bear on the question, with page numbers, instead of the whole file.
 2. **Your agent reads pages you did not write.**
    * Anything on the open web can carry a passage aimed at an AI agent. Grille withholds it before your agent reads it.
@@ -121,6 +121,8 @@ grille verify https://a.example https://b.example                     # status, 
 - **`--render`** writes pages with no text layer, such as scans, as images, so the agent looks at three pictures instead of eighty.
 
 Page numbers count the PDF's own pages, the ones a `#page=N` link opens. Where the PDF prints its own page numbers, each heading gives the printed one too: `## page 79 (printed 76, score 0.62)`. Grille reads them from the PDF's page labels, such as roman front matter, or else from a "Page N of M" header or footer that most pages carry and that counts up page by page.
+
+A Word document (`.docx`) reads as its body text in chunks, leaving out headers, footers, footnotes and tracked deletions. Any other binary file, such as a spreadsheet, an archive or an image, is refused by name, because decoded as text it would read as noise.
 
 Withheld passages are kept in a store for the session, under your system's temporary folder, and swept seven days after the session's last use.
 
